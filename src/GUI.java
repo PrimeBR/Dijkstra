@@ -28,6 +28,7 @@ public class GUI extends JApplet {
     private Object parent;
     private mxGraphModel model;
     private Dijkstra test;
+
     private Object currV = new mxCell();
     private Object currE = new mxCell();
     private Object cell = new mxCell();
@@ -204,7 +205,7 @@ public class GUI extends JApplet {
             String weight = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите вес ребра:");
-            Object tmp = graph.insertEdge(parent, null, weight, vFrom, vTo);
+            Object tmp = graph.insertEdge(parent, null, Double.parseDouble(weight), vFrom, vTo);
             graph.setCellStyles(mxConstants.STYLE_STROKECOLOR ,"red", new Object[]{tmp});
 
         }
