@@ -59,6 +59,14 @@ public class Dijkstra {
 
     }
 
+    public Steps getStep() {
+        return step;
+    }
+
+    public boolean isNextStep() {
+        return !unvisitedVertices.isEmpty();
+    }
+
     /**
      * главный метод алгоритма Дейкстры разбит на небольшие методы
      * опять же для возможности реализации визуализации
@@ -66,7 +74,7 @@ public class Dijkstra {
     public void getPaths() {
         Object currVertex = new mxCell();
         Object currEdge = new mxCell();
-        while (!unvisitedVertices.isEmpty())
+        while (isNextStep())
             switch (step) {
                 case UNVISITED_VERTEX_SELECTION:
                     currVertex = selectUnvisitedVertex();
