@@ -1,3 +1,4 @@
+import Dijkstra.Dijkstra;
 import com.mxgraph.layout.*;
 import com.mxgraph.model.*;
 import com.mxgraph.swing.mxGraphComponent;
@@ -51,16 +52,16 @@ public class GUI extends JApplet {
      *applet - наша окно интерфейса
      *frame - рамка для нашего окна
      */
-    public static void main(String[] args) {
-        GUI applet = new GUI();
-        applet.init();
-        JFrame frame  = new JFrame();
-        frame.getContentPane().add(applet);
-        frame.setTitle("JGraphT Adapter to JGraphX Demo");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-    }
+//    public static void main(String[] args) {
+//        GUI applet = new GUI();
+//        applet.init();
+//        JFrame frame  = new JFrame();
+//        frame.getContentPane().add(applet);
+//        frame.setTitle("JGraphT Adapter to JGraphX Demo");
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.pack();
+//        frame.setVisible(true);
+//    }
 
     /**
      * Задание формы кнопок и их инициализация
@@ -109,13 +110,15 @@ public class GUI extends JApplet {
         Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 80, 30);
         Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 80, 30);
 
-
-        graph.insertEdge(parent, "1", "Дуга", v1, v2);
-        graph.insertEdge(parent, "2", "Дуга", v2, v3);
-        graph.insertEdge(parent, "3", "Дуга", v3, v1);
-        graph.insertEdge(parent, "4", "Дуга", v4, v3);
+        graph.insertEdge(parent, "1", 3.14, v1, v2);
+        graph.insertEdge(parent, "2", 2.71828, v2, v3);
+        graph.insertEdge(parent, "3", 2.28, v3, v1);
+        graph.insertEdge(parent, "4", 1.448, v4, v3);
         model.endUpdate();
         initCircleLayout();
+        Dijkstra test = new Dijkstra(graph, v1);
+        test.getPaths();
+        System.out.println(test.toString());
     }
 
     /**
@@ -185,8 +188,8 @@ public class GUI extends JApplet {
         Принцип работы аналогичен методу по добавлению ребра в граф.
          */
         public void actionPerformed(ActionEvent e) {
-            mxCell vFrom = new mxCell();
-            mxCell vTo = new mxCell();
+            //mxCell vFrom = new mxCell();
+            //mxCell vTo = new mxCell();
             String from = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите первую вершину:");
@@ -194,7 +197,7 @@ public class GUI extends JApplet {
                 exceptionChecker(1);
                 return;
             }
-            vFrom = cellFounder(from);
+            mxCell vFrom = cellFounder(from);
             if(vFrom == null) {
                 exceptionChecker(1);
                 return;
@@ -206,7 +209,7 @@ public class GUI extends JApplet {
                 exceptionChecker(2);
                 return;
             }
-            vTo = cellFounder(to);
+            mxCell vTo = cellFounder(to);
             if(vTo == null) {
                 exceptionChecker(2);
                 return;
@@ -327,10 +330,11 @@ public class GUI extends JApplet {
     private mxCell cellFounder(String result) {
         for(Object v: graph.getChildVertices(graph.getDefaultParent())) {
             if (result.equals(((mxCell) v).getValue())) {
-                mxCell tmp = (mxCell) v;
-                return tmp;
+                return (mxCell) v;
             }
         }
         return null;
     }
+
+
 }
