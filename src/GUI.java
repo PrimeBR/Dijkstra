@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.border.Border;
+
 /**
  * Класс реализации графического интерфейса
  */
@@ -27,7 +28,6 @@ public class GUI extends JApplet {
     private Object parent;
     private mxGraphModel model;
     private Dijkstra test;
-
     /**
      *     addVertexButton - кнопка для добавления вершины в граф
      *     addEdgeButton - кнопка для добавления ребра в граф
@@ -240,25 +240,18 @@ public class GUI extends JApplet {
         public void actionPerformed(ActionEvent e) {
             if(!checker)
                 checkStartVertex();
-//            Object[] tmp = graph.getAllEdges(graph.getChildVertices(graph.getDefaultParent()));
-            Object tmp = nextStep();
-            if(((mxCell) tmp).isEdge())
-                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR ,"FA8072", new Object[]{tmp});
-            else if(((mxCell) tmp).isVertex())
-                if(!start.equals(((mxCell) tmp).getValue()))
-                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{tmp});
+            Object[] tmp = graph.getAllEdges(graph.getChildVertices(graph.getDefaultParent()));
+            for(Object v: tmp) {
+                Object source = ((mxCell) v).getSource();
+                Object target = ((mxCell) v).getTarget();
+                Object[] edges = graph.getEdgesBetween(source, target);
+                if(edges.length == 0)
+                    return;
+                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR ,"FA8072", new Object[]{edges[0]});
+                if(!start.equals(((mxCell) source).getValue()))
+                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{source});
 
-//            for(Object v: tmp) {
-//                Object source = ((mxCell) v).getSource();
-//                Object target = ((mxCell) v).getTarget();
-//                Object[] edges = graph.getEdgesBetween(source, target);
-//                if(edges.length == 0)
-//                    return;
-//                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR ,"FA8072", new Object[]{edges[0]});
-//                if(!start.equals(((mxCell) source).getValue()))
-//                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{source});
-//
-//            }
+            }
         }
     }
 
@@ -342,21 +335,6 @@ public class GUI extends JApplet {
             }
         }
         return null;
-    }
-
-    public Object nextStep() {
-        Object currVertex = new mxCell();
-        Object currEdge = new mxCell();
-            switch (test.getStep()) {
-                case UNVISITED_VERTEX_SELECTION:
-                    return test.selectUnvisitedVertex();
-                case NEAREST_NEIGHBOR_SELECTION:
-                    return test.selectNearestNeighbor(currVertex);
-                case RELAXATION:
-                    return test.relax(currEdge);
-                default: return null;
-            }
-
     }
 
 }
