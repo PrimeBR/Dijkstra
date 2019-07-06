@@ -119,6 +119,7 @@ public class Dijkstra {
      * выбор непросмотренной вершины, ближайшей к текущей просматриваемой
      */
     public Object selectNearestNeighbor(Object vertex) {
+        System.out.println("1" + vertex.toString());
         if (outgoingEdges.get(vertex).isEmpty()) {
             step = Steps.UNVISITED_VERTEX_SELECTION;
             return vertex;
