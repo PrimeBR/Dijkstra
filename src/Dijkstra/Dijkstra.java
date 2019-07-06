@@ -166,7 +166,7 @@ public class Dijkstra {
     /**
      *  восстановление пути до вершины
      */
-    private String pathRestoration(Object v) {
+    public String pathRestoration(Object v) {
         StringBuilder builder = new StringBuilder();
         Stack<Object> stack = new Stack<>();
 
