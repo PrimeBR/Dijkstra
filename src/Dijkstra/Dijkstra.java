@@ -7,8 +7,6 @@ import java.util.*;
 
 import static java.lang.Double.POSITIVE_INFINITY;
 
-enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
-
 public class Dijkstra {
     /**
      * step - метка, указывающая, какой шаг алгоритма должен выполнятся следующим
@@ -26,6 +24,8 @@ public class Dijkstra {
     private HashMap<Object, Object> parents;
     private mxGraph graph;
     private Object source;
+    public enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
+
 
     public Dijkstra(mxGraph graph, Object source) {
         distance = new HashMap<>();
@@ -67,6 +67,11 @@ public class Dijkstra {
         return !unvisitedVertices.isEmpty();
     }
 
+    public void removeVertex(Object vertex, Object edge) {
+        if (edge.equals(vertex))
+            unvisitedVertices.remove(vertex);
+    }
+
     /**
      * главный метод алгоритма Дейкстры разбит на небольшие методы
      * опять же для возможности реализации визуализации
@@ -81,8 +86,7 @@ public class Dijkstra {
                     break;
                 case NEAREST_NEIGHBOR_SELECTION:
                     currEdge = selectNearestNeighbor(currVertex);
-                    if (currEdge.equals(currVertex))
-                        unvisitedVertices.remove(currVertex);
+                    removeVertex(currVertex, currEdge);
                     break;
                 case RELAXATION:
                     relax(currEdge);
