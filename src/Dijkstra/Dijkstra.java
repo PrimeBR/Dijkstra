@@ -6,7 +6,6 @@ import com.mxgraph.view.mxGraph;
 import java.util.*;
 
 import static java.lang.Double.POSITIVE_INFINITY;
-import static java.lang.Double.min;
 
 enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
 
@@ -16,6 +15,7 @@ public class Dijkstra {
      * distance - карта вершин и расстояний до них
      * unvisitedVertices - список непросмотренных вершин
      * outgoingEdges - карта вершин и выходящих из них ребер
+     * parents - список пар вершин, по которым восстанавливаются кратчайшие пути
      * graph - граф, в котором ищутся кратчайшие пути
      * source - начальная вершина в алгоритме Дейкстры
      */
@@ -23,6 +23,7 @@ public class Dijkstra {
     private HashMap<Object, Double> distance;
     private ArrayList<Object> unvisitedVertices;
     private HashMap<Object, TreeSet<Object>> outgoingEdges;
+    private HashMap<Object, Object> parents;
     private mxGraph graph;
     private Object source;
 
@@ -30,16 +31,22 @@ public class Dijkstra {
         distance = new HashMap<>();
         unvisitedVertices = new ArrayList<>();
         outgoingEdges = new HashMap<>();
+        parents = new HashMap<>();
         this.graph = graph;
         this.source = source;
 
         /**
-         * изначально расстояния до всех вершин равно бесконечности
+         * изначально все вершины считаются непросмотренными и расстояния до них равно бесконечности
          */
         for (Object v : graph.getChildVertices(graph.getDefaultParent())) {
             distance.put(v, POSITIVE_INFINITY);
             unvisitedVertices.add(v);
         }
+
+        /**
+         * расстояние от начальной вершины до себя, очевидно, равно 0
+         */
+        distance.put(source, 0.0);
 
         /**
          * дублирование вершин с выходящими из них ребрами для возможности реализации визуализации
@@ -57,11 +64,6 @@ public class Dijkstra {
      * опять же для возможности реализации визуализации
      */
     public void getPaths() {
-        /**
-         * расстояние от начальной вершины до себя, очевидно, равно 0
-         */
-        distance.put(source, 0.0);
-
         Object currVertex = new mxCell();
         Object currEdge = new mxCell();
         while (!unvisitedVertices.isEmpty())
@@ -83,7 +85,7 @@ public class Dijkstra {
     /**
      * выбор следующей просматриваемой вершины из еще непросмотренных
      */
-    private Object selectUnvisitedVertex() {
+    public Object selectUnvisitedVertex() {
         step = Steps.NEAREST_NEIGHBOR_SELECTION;
 
         /**
@@ -104,7 +106,7 @@ public class Dijkstra {
     /**
      * выбор непросмотренной вершины, ближайшей к текущей просматриваемой
      */
-    private Object selectNearestNeighbor(Object vertex) {
+    public Object selectNearestNeighbor(Object vertex) {
         if (outgoingEdges.get(vertex).isEmpty()) {
             step = Steps.UNVISITED_VERTEX_SELECTION;
             return vertex;
@@ -120,12 +122,15 @@ public class Dijkstra {
     /**
      * обновление расстояния до вершины
      */
-    private double relax(Object edge) {
+    public double relax(Object edge) {
         Object source = ((mxCell) edge).getSource();
         Object target = ((mxCell) edge).getTarget();
         double value = (double)((mxCell) edge).getValue();
 
         double newDistance = Math.min(distance.get(target), distance.get(source) + value);
+
+        if (newDistance < distance.get(target))
+            parents.put(target, source);
 
         distance.put(target, newDistance);
 
@@ -146,15 +151,42 @@ public class Dijkstra {
         return result;
     }
 
+    /**
+     *  восстановление пути до вершины
+     */
+    private String pathRestoration(Object v) {
+        StringBuilder builder = new StringBuilder();
+        Stack<Object> stack = new Stack<>();
+
+        do {
+            stack.push(v);
+            v = parents.get(v);
+        } while (!v.equals(source));
+        stack.push(source);
+
+        while (!stack.empty())
+            builder.append(((mxCell) stack.pop()).getValue().toString() + " ");
+        builder.append("\n");
+
+        return builder.toString();
+    }
+
     public String toString() {
-        StringBuffer builder = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (Map.Entry e: distance.entrySet()) {
-            builder.append("vertex = ");
-            builder.append(((mxCell) e.getKey()).getValue().toString());
-            builder.append(", distance = ");
-            builder.append(e.getValue().toString());
-            builder.append("\n");
+            if (!((mxCell) e.getKey()).equals(source)) {
+                builder.append("vertex = ");
+                builder.append(((mxCell) e.getKey()).getValue().toString());
+                builder.append(", distance = ");
+                builder.append(e.getValue().toString());
+                builder.append("\n");
+            }
         }
+
+        builder.append("\n" + "Paths:" + "\n");
+
+        for (Object v: parents.keySet())
+            builder.append(pathRestoration(v));
 
         return builder.toString();
     }
