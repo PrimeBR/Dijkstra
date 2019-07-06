@@ -28,6 +28,9 @@ public class GUI extends JApplet {
     private Object parent;
     private mxGraphModel model;
     private Dijkstra test;
+    private Object currV = new mxCell();
+    private Object currE = new mxCell();
+    private Object cell = new mxCell();
     /**
      *     addVertexButton - кнопка для добавления вершины в граф
      *     addEdgeButton - кнопка для добавления ребра в граф
@@ -50,21 +53,6 @@ public class GUI extends JApplet {
     private Object start;
 
     /**
-     *applet - наша окно интерфейса
-     *frame - рамка для нашего окна
-     */
-//    public static void main(String[] args) {
-//        GUI applet = new GUI();
-//        applet.init();
-//        JFrame frame  = new JFrame();
-//        frame.getContentPane().add(applet);
-//        frame.setTitle("JGraphT Adapter to JGraphX Demo");
-//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.pack();
-//        frame.setVisible(true);
-//    }
-
-    /**
      * Задание формы кнопок и их инициализация
      */
     private void initButtons() {
@@ -84,7 +72,7 @@ public class GUI extends JApplet {
         nextButton.setBorder(new RoundedBorder(10));
 
         executeButton.setBounds(740, 300, 50, 50);
-        executeButton.addActionListener(new nextIteration());
+        executeButton.addActionListener(new Execute());
         getContentPane().add(executeButton);
         executeButton.setBorder(new RoundedBorder(10));
 
@@ -115,11 +103,9 @@ public class GUI extends JApplet {
         graph.insertEdge(parent, "2", 2.71828, v2, v3);
         graph.insertEdge(parent, "3", 2.28, v3, v1);
         graph.insertEdge(parent, "4", 1.448, v4, v3);
+        graph.insertEdge(parent, "5", 5.0, v1, v4);
         model.endUpdate();
         initCircleLayout();
-        test = new Dijkstra(graph, v1);
-        test.getPaths();
-        System.out.println(test.toString());
     }
 
     /**
@@ -240,18 +226,38 @@ public class GUI extends JApplet {
         public void actionPerformed(ActionEvent e) {
             if(!checker)
                 checkStartVertex();
-            Object[] tmp = graph.getAllEdges(graph.getChildVertices(graph.getDefaultParent()));
-            for(Object v: tmp) {
-                Object source = ((mxCell) v).getSource();
-                Object target = ((mxCell) v).getTarget();
-                Object[] edges = graph.getEdgesBetween(source, target);
-                if(edges.length == 0)
-                    return;
-                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR ,"FA8072", new Object[]{edges[0]});
-                if(!start.equals(((mxCell) source).getValue()))
-                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{source});
+            if (test.getStep() == Dijkstra.Steps.NEAREST_NEIGHBOR_SELECTION)
+                cell = currV;
+            else if (test.getStep() == Dijkstra.Steps.RELAXATION)
+                cell = currE;
 
+            Object result = nextStep(cell);
+            if (result instanceof Double)
+                System.out.println("double");
+            else if(((mxCell) result).isEdge()) {
+                cell = result;
+                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
             }
+            else if(((mxCell) result).isVertex()) {
+                cell = result;
+                if (!start.equals(((mxCell) cell).getValue()))
+                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{cell});
+            }
+
+            if (!test.isNextStep()) {
+                nextButton.setEnabled(false);
+                System.out.println(test.toString());
+            }
+        }
+    }
+
+    class Execute implements ActionListener {
+        @Override
+        public void actionPerformed (ActionEvent e) {
+            if(!checker)
+                checkStartVertex();
+            test.getPaths();
+            System.out.println(test.toString());
         }
     }
 
@@ -310,6 +316,7 @@ public class GUI extends JApplet {
             if((result.toString()).equals(((mxCell) v).getValue())) {
                 checker = true;
                 graph.setCellStyle("defaultVertex;fillColor=#98FB98", new Object[]{v});
+                test = new Dijkstra(graph, v);
                 return;
             }
     }
@@ -335,6 +342,29 @@ public class GUI extends JApplet {
             }
         }
         return null;
+    }
+
+    public Object nextStep(Object cell) {
+        Object result = new mxCell();
+        switch (test.getStep()) {
+            case UNVISITED_VERTEX_SELECTION:
+                System.out.println("1");
+                currV = test.selectUnvisitedVertex();
+                result = currV;
+                break;
+            case NEAREST_NEIGHBOR_SELECTION:
+                System.out.println("2");
+                currE = test.selectNearestNeighbor(cell);
+                test.removeVertex(cell, currE);
+                result = currE;
+                break;
+            case RELAXATION:
+                System.out.println("3");
+                result = test.relax(cell);
+                break;
+        }
+
+        return result;
     }
 
 }
