@@ -7,6 +7,7 @@ import com.mxgraph.view.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import javax.swing.border.Border;
 
@@ -96,9 +97,13 @@ public class GUI extends JApplet {
         initGraph();
         model.beginUpdate();
         Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 80, 30);
+        ((mxCell) v1).setId("1");
         Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 80, 30);
+        ((mxCell) v2).setId("2");
         Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 80, 30);
+        ((mxCell) v3).setId("3");
         Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 80, 30);
+        ((mxCell) v4).setId("4");
 
         graph.insertEdge(parent, "1", 3.14, v1, v2);
         graph.insertEdge(parent, "2", 2.71828, v2, v3);
@@ -141,12 +146,6 @@ public class GUI extends JApplet {
      */
     class addVertexButtonEventListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            /*
-            В input занасится имя для новой переменной,
-            далее в цикле for происходит обход по всем вершинам графа в поиске совпадения с input,
-            если совпадение происходит, значит вершина с таким именем уже есть и происходит вывод в окно соответствующего сообщения,
-            иначе она добавляется в граф
-             */
             String input = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите вершину:");
@@ -159,7 +158,8 @@ public class GUI extends JApplet {
                         return;
                     }
                 }
-                graph.insertVertex(parent, null, input, 100, 100, 80, 30);
+                Object tmp = graph.insertVertex(parent, null, input, 100, 100, 80, 30);
+                ((mxCell) tmp).setId(input);
                 layout.execute(graph.getDefaultParent());
             }
         }
@@ -170,11 +170,6 @@ public class GUI extends JApplet {
      * Класс с реализацией действий для добавления ребра в граф
      */
     class addEdgeButtonEventListener implements ActionListener {
-        /*
-        vFrom, vTo - объекты вершин, между которыми необходимо построить ребро.
-        from, to - строки, в которые будет введено названия вершин.
-        Принцип работы аналогичен методу по добавлению ребра в граф.
-         */
         public void actionPerformed(ActionEvent e) {
             //mxCell vFrom = new mxCell();
             //mxCell vTo = new mxCell();
@@ -212,18 +207,20 @@ public class GUI extends JApplet {
 
     }
 
+    class Execute implements ActionListener {
+        @Override
+        public void actionPerformed (ActionEvent e) {
+            if(!checker)
+                checkStartVertex();
+            test.getPaths();
+            System.out.println(test.toString());
+        }
+    }
+
     /**
      * Класс перехода к следующей итерации
      */
     class nextIteration implements ActionListener {
-        /*
-        tmp - все рёбра графа
-        source, target - источник и сток, вершины определённого ребра графа
-        edges - все рёбра, которые имеют source и target
-        На данный момент метод производит проверку на наличие стартовой вершины в графе
-        при помощи стороннего метода checkStartVertex(), а также выделяет другим цветом
-        выбранную для следующей итерации вершину и , соответственно, ребро.
-         */
         public void actionPerformed(ActionEvent e) {
             if(!checker)
                 checkStartVertex();
@@ -240,55 +237,17 @@ public class GUI extends JApplet {
                 graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
             }
             else if(((mxCell) result).isVertex()) {
+                if(cell.equals(result))
+                    graph.setCellStyle("defaultVertex;fillColor=#98FB98", new Object[]{result});
+                else
+                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{result});
                 cell = result;
-                if (!start.equals(((mxCell) cell).getValue()))
-                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{cell});
             }
 
             if (!test.isNextStep()) {
                 nextButton.setEnabled(false);
                 System.out.println(test.toString());
             }
-        }
-    }
-
-    class Execute implements ActionListener {
-        @Override
-        public void actionPerformed (ActionEvent e) {
-            if(!checker)
-                checkStartVertex();
-            test.getPaths();
-            System.out.println(test.toString());
-        }
-    }
-
-    /**
-     * Класс с методами и полями, необходимыми для скругления краёв у кнопок
-     */
-    private static class RoundedBorder implements Border {
-
-        private int radius;
-
-        RoundedBorder(int radius) {
-            this.radius = radius;
-        }
-        /*
-        Возвращает вставки границы.
-         */
-        public Insets getBorderInsets(Component c) {
-            return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
-        }
-        /*
-        Возвращает, является ли граница непрозрачной.
-         */
-        public boolean isBorderOpaque() {
-            return true;
-        }
-        /*
-        Рисует границу для указанного компонента с указанным положением и размером.
-         */
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.drawRoundRect(x, y, width-1, height-1, radius, radius);
         }
     }
 
@@ -317,6 +276,8 @@ public class GUI extends JApplet {
             if((result.toString()).equals(((mxCell) v).getValue())) {
                 checker = true;
                 graph.setCellStyle("defaultVertex;fillColor=#98FB98", new Object[]{v});
+                ((mxCell) v).setValue(0);
+                ((mxCell) v).setValue(((mxCell) v).getId() + "(0.0)");
                 test = new Dijkstra(graph, v);
                 return;
             }
@@ -352,12 +313,14 @@ public class GUI extends JApplet {
                 System.out.println("1");
                 currV = test.selectUnvisitedVertex();
                 result = currV;
+//                System.out.println(result.toString());
                 break;
             case NEAREST_NEIGHBOR_SELECTION:
                 System.out.println("2");
                 currE = test.selectNearestNeighbor(cell);
                 test.removeVertex(cell, currE);
                 result = currE;
+//                if(cell)
                 break;
             case RELAXATION:
                 System.out.println("3");
@@ -368,4 +331,33 @@ public class GUI extends JApplet {
         return result;
     }
 
+    /**
+     * Класс с методами и полями, необходимыми для скругления краёв у кнопок
+     */
+    private static class RoundedBorder implements Border {
+
+        private int radius;
+
+        RoundedBorder(int radius) {
+            this.radius = radius;
+        }
+        /*
+        Возвращает вставки границы.
+         */
+        public Insets getBorderInsets(Component c) {
+            return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
+        }
+        /*
+        Возвращает, является ли граница непрозрачной.
+         */
+        public boolean isBorderOpaque() {
+            return true;
+        }
+        /*
+        Рисует границу для указанного компонента с указанным положением и размером.
+         */
+        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+            g.drawRoundRect(x, y, width-1, height-1, radius, radius);
+        }
+    }
 }

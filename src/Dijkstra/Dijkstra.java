@@ -148,9 +148,11 @@ public class Dijkstra {
 
         if (newDistance < distance.get(target))
             parents.put(target, source);
-
         distance.put(target, newDistance);
-
+        System.out.println(target.toString());
+        ((mxCell) target).setValue(0);
+        ((mxCell) target).setValue(((mxCell) target).getId() + "(" + newDistance + ")");
+        System.out.println(target.toString());
         step = Steps.NEAREST_NEIGHBOR_SELECTION;
 
         return newDistance;
