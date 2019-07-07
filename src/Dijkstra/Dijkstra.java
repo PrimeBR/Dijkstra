@@ -123,11 +123,16 @@ public class Dijkstra {
             step = Steps.UNVISITED_VERTEX_SELECTION;
             return vertex;
         }
-        else {
+        else if (unvisitedVertices.contains(((mxCell) outgoingEdges.get(vertex).first()).getTarget())) {
             step = Steps.RELAXATION;
             Object result = outgoingEdges.get(vertex).first();
             outgoingEdges.get(vertex).remove(result);
             return result;
+        }
+        else {
+            Object result = outgoingEdges.get(vertex).first();
+            outgoingEdges.get(vertex).remove(result);
+            return vertex;
         }
     }
 
