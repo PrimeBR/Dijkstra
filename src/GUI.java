@@ -7,6 +7,8 @@ import com.mxgraph.view.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.border.Border;
 
@@ -44,6 +46,7 @@ public class GUI extends JApplet {
     private JButton nextButton = new JButton("▶");
     private JButton executeButton = new JButton("▶▶");
     private JButton helpButton = new JButton(" ? ");
+    private JButton fileButton = new JButton("\uD83D\uDCBE");
     private final String TITLE_message = "Справка";
 
     /**
@@ -77,7 +80,7 @@ public class GUI extends JApplet {
         getContentPane().add(executeButton);
         executeButton.setBorder(new RoundedBorder(10));
 
-        helpButton.setBounds(740, 80, 50, 50);
+        helpButton.setBounds(740, 25, 50, 50);
         helpButton.addActionListener(e -> JOptionPane.showMessageDialog(GUI.this,
                 "<html><h2>Справка:</h2><p>Данный графический интерфейс визуализирует алгоритм<br> поиска кратчайшего пути в графе - алгоритм Дейкстры.<br>" +
                         "<i><br>Описание кнопок:</i> <br>" +
@@ -87,6 +90,11 @@ public class GUI extends JApplet {
 
         getContentPane().add(helpButton);
         helpButton.setBorder(new RoundedBorder(10));
+
+        fileButton.setBounds(740, 80, 50, 50);
+        fileButton.addActionListener(new fileReader());
+        getContentPane().add(fileButton);
+        fileButton.setBorder(new RoundedBorder(10));
     }
 
     /**
@@ -95,22 +103,22 @@ public class GUI extends JApplet {
     public void init() {
         initButtons();
         initGraph();
-        model.beginUpdate();
-        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 45, 45, "shape=ellipse");
-        ((mxCell) v1).setId("1");
-        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 45, 45, "shape=ellipse");
-        ((mxCell) v2).setId("2");
-        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 45, 45, "shape=ellipse");
-        ((mxCell) v3).setId("3");
-        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 45, 45, "shape=ellipse");
-        ((mxCell) v4).setId("4");
+//        model.beginUpdate();
+//        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 45, 45, "shape=ellipse");
+//        ((mxCell) v1).setId("1");
+//        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 45, 45, "shape=ellipse");
+//        ((mxCell) v2).setId("2");
+//        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 45, 45, "shape=ellipse");
+//        ((mxCell) v3).setId("3");
+//        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 45, 45, "shape=ellipse");
+//        ((mxCell) v4).setId("4");
 
-        graph.insertEdge(parent, "1", 3.14, v1, v2);
-        graph.insertEdge(parent, "2", 2.71828, v2, v3);
-        graph.insertEdge(parent, "3", 2.28, v3, v1);
-        graph.insertEdge(parent, "4", 1.448, v4, v3);
-        graph.insertEdge(parent, "5", 5.0, v1, v4);
-        model.endUpdate();
+//        graph.insertEdge(parent, "1", 3.14, v1, v2);
+//        graph.insertEdge(parent, "2", 2.71828, v2, v3);
+//        graph.insertEdge(parent, "3", 2.28, v3, v1);
+//        graph.insertEdge(parent, "4", 1.448, v4, v3);
+//        graph.insertEdge(parent, "5", 5.0, v1, v4);
+//        model.endUpdate();
         initCircleLayout();
     }
 
@@ -141,6 +149,51 @@ public class GUI extends JApplet {
 
     }
 
+    class fileReader implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            try{
+                String filename = JOptionPane.showInputDialog(
+                        GUI.this,
+                        "<html><h2>Введите название файла");
+                URL path = GUI.class.getResource(filename + ".txt");
+                File f = new File(path.getFile());
+                BufferedReader br = new BufferedReader(new FileReader(f));
+                String strLine;
+                while ((strLine = br.readLine()) != null) {
+                    String[] parts = strLine.split(" ");
+                    if(parts.length < 3) {
+                        JOptionPane.showMessageDialog(null, "Некорректный ввод данных в файле.\n" +
+                                "Задавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                        graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
+                        return;
+                    }
+                    Object From = null;
+                    Object To = null;
+                    for(Object v : graph.getChildVertices(graph.getDefaultParent())) {
+                        if (parts[0].equals(((mxCell) v).getValue().toString()))
+                            From = v;
+                        if (parts[1].equals(((mxCell) v).getValue().toString()))
+                            To = v;
+                    }
+                    if(((mxCell) From) == null) {
+                        From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
+                        ((mxCell) From).setId(parts[0]);
+                        layout.execute(graph.getDefaultParent());
+                    }
+                    if(((mxCell) To) == null) {
+                        To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
+                        ((mxCell) To).setId(parts[1]);
+                        layout.execute(graph.getDefaultParent());
+                    }
+                    DoubleParser((mxCell) From, (mxCell) To, parts[2]);
+                }
+                fileButton.setEnabled(false);
+            } catch (IOException error){
+                System.out.println("Ошибка");
+            }
+        }
+    }
+
     /**
      * Класс с реализацией действий для добавления вершины в граф
      */
@@ -154,7 +207,7 @@ public class GUI extends JApplet {
                     return;
                 for(Object v: graph.getChildVertices(graph.getDefaultParent())) {
                     if (input.equals(((mxCell) v).getValue())) {
-                        JOptionPane.showMessageDialog(null, "this vertex has already been added", "warning", JOptionPane.PLAIN_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Данная вершина уже есть в графе", "Warning!", JOptionPane.PLAIN_MESSAGE);
                         return;
                     }
                 }
@@ -200,9 +253,24 @@ public class GUI extends JApplet {
             String weight = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите вес ребра:");
-            graph.insertEdge(parent, null, Double.parseDouble(weight), vFrom, vTo);
+            DoubleParser(vFrom, vTo, weight);
+
         }
 
+    }
+
+    private void DoubleParser(mxCell From, mxCell To, String weight) {
+        try {
+            if(Double.parseDouble(weight) < 0) {
+                JOptionPane.showMessageDialog(null, "Введено ребро отрицательного веса", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                return;
+            }
+            graph.insertEdge(parent, null, Double.parseDouble(weight), From, To);
+        }
+        catch (NumberFormatException w) {
+            JOptionPane.showMessageDialog(null, "Введено неккоректная запись числа!\n" +
+                    "Совет: используйте \".\" для разделения целой и дробной частей.", "Warning!", JOptionPane.PLAIN_MESSAGE);
+        }
     }
 
     class Execute implements ActionListener {
@@ -305,9 +373,9 @@ public class GUI extends JApplet {
      */
     private void exceptionChecker(int flag) {
         if(flag == 1)
-            JOptionPane.showMessageDialog(null, "Missing start vertex", "warning", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Пропущен ввод стартовой вершины", "Warning!", JOptionPane.PLAIN_MESSAGE);
         else if(flag == 2)
-            JOptionPane.showMessageDialog(null, "Missing final vertex", "warning", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Пропущен ввод конечной вершины", "Warning!", JOptionPane.PLAIN_MESSAGE);
 
     }
 
