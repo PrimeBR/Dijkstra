@@ -180,7 +180,7 @@ public class Dijkstra {
         stack.push(source);
 
         while (!stack.empty())
-            builder.append(((mxCell) stack.pop()).getValue().toString() + " ");
+            builder.append(((mxCell) stack.pop()).getId() + " ");
         builder.append("\n");
 
         return builder.toString();
