@@ -83,7 +83,9 @@ public class GUI extends JApplet {
                 "<html><h2>Справка:</h2><p>Данный графический интерфейс визуализирует алгоритм<br> поиска кратчайшего пути в графе - алгоритм Дейкстры.<br>" +
                         "<i><br>Описание кнопок:</i> <br>" +
                         "1) V - кнопка добавления вершины в граф;<br>2) E - кнопка добавления ребра в граф;<br>" +
-                        "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.</p>", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
+                        "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.<br></p>" +
+                        "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
+
         getContentPane().add(helpButton);
         helpButton.setBorder(new RoundedBorder(10));
     }
@@ -230,15 +232,18 @@ public class GUI extends JApplet {
                 cell = currE;
 
             Object result = nextStep(cell);
-            if (result instanceof Double)
-                System.out.println("double");
+            if (result instanceof Double) {
+                Object target = ((mxCell) cell).getTarget();
+                ((mxCell) target).setValue("\n\n"+ ((mxCell) target).getId() + "\n\n(" + result + ")");
+                graph.setCellStyle("defaultVertex", new Object[]{target});
+            }
             else if(((mxCell) result).isEdge()) {
                 cell = result;
                 graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
             }
             else if(((mxCell) result).isVertex()) {
                 if(cell.equals(result))
-                    graph.setCellStyle("defaultVertex;fillColor=#98FB98", new Object[]{result});
+                    graph.setCellStyle("defaultVertex;fillColor=#A9A9A9", new Object[]{result});
                 else
                     graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{result});
                 cell = result;
@@ -275,9 +280,7 @@ public class GUI extends JApplet {
         for(Object v: tmp)
             if((result.toString()).equals(((mxCell) v).getValue())) {
                 checker = true;
-                graph.setCellStyle("defaultVertex;fillColor=#98FB98", new Object[]{v});
-                ((mxCell) v).setValue(0);
-                ((mxCell) v).setValue(((mxCell) v).getId() + "(0.0)");
+                graph.setCellStyle("defaultVertex;fillColor=#A9A9A9", new Object[]{v});
                 test = new Dijkstra(graph, v);
                 return;
             }
@@ -313,14 +316,12 @@ public class GUI extends JApplet {
                 System.out.println("1");
                 currV = test.selectUnvisitedVertex();
                 result = currV;
-//                System.out.println(result.toString());
                 break;
             case NEAREST_NEIGHBOR_SELECTION:
                 System.out.println("2");
                 currE = test.selectNearestNeighbor(cell);
                 test.removeVertex(cell, currE);
                 result = currE;
-//                if(cell)
                 break;
             case RELAXATION:
                 System.out.println("3");
