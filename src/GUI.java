@@ -51,7 +51,7 @@ public class GUI extends JApplet {
      * start - объект стартовой вершины
      */
     private boolean checker = false;
-    private Object start;
+//    private Object start;
 
     /**
      * Задание формы кнопок и их инициализация
@@ -68,7 +68,7 @@ public class GUI extends JApplet {
         addEdgeButton.setBorder(new RoundedBorder(10));
 
         nextButton.setBounds(740, 245, 50, 50);
-        nextButton.addActionListener(new nextIteration());
+        nextButton.addActionListener(new nextIterationButton());
         getContentPane().add(nextButton);
         nextButton.setBorder(new RoundedBorder(10));
 
@@ -96,13 +96,13 @@ public class GUI extends JApplet {
         initButtons();
         initGraph();
         model.beginUpdate();
-        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 50, 50, "shape=ellipse");
+        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 45, 45, "shape=ellipse");
         ((mxCell) v1).setId("1");
-        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 50, 50, "shape=ellipse");
+        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 45, 45, "shape=ellipse");
         ((mxCell) v2).setId("2");
-        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 50, 50, "shape=ellipse");
+        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 45, 45, "shape=ellipse");
         ((mxCell) v3).setId("3");
-        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 50, 50, "shape=ellipse");
+        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 45, 45, "shape=ellipse");
         ((mxCell) v4).setId("4");
 
         graph.insertEdge(parent, "1", 3.14, v1, v2);
@@ -119,9 +119,9 @@ public class GUI extends JApplet {
      */
     private void initCircleLayout() {
         layout = new mxCircleLayout(graph);
-        int radius = 100;
-        layout.setX0((DEFAULT_SIZE.width / 2.0) - 2*radius);
-        layout.setY0((DEFAULT_SIZE.height / 2.0) - radius);
+        int radius = 150;
+        layout.setX0((DEFAULT_SIZE.width / 2.0) - 1.33*radius);
+        layout.setY0((DEFAULT_SIZE.height / 2.0) - 1.1*radius);
         layout.setRadius(radius);
         layout.setMoveCircle(true);
         layout.execute(graph.getDefaultParent());
@@ -158,7 +158,7 @@ public class GUI extends JApplet {
                         return;
                     }
                 }
-                Object tmp = graph.insertVertex(parent, null, input, 100, 100, 50, 50, "shape=ellipse");
+                Object tmp = graph.insertVertex(parent, null, input, 100, 100, 45, 45, "shape=ellipse");
                 ((mxCell) tmp).setId(input);
                 layout.execute(graph.getDefaultParent());
             }
@@ -200,9 +200,7 @@ public class GUI extends JApplet {
             String weight = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите вес ребра:");
-            Object tmp = graph.insertEdge(parent, null, Double.parseDouble(weight), vFrom, vTo);
-            graph.setCellStyles(mxConstants.STYLE_STROKECOLOR ,"red", new Object[]{tmp});
-
+            graph.insertEdge(parent, null, Double.parseDouble(weight), vFrom, vTo);
         }
 
     }
@@ -210,55 +208,71 @@ public class GUI extends JApplet {
     class Execute implements ActionListener {
         @Override
         public void actionPerformed (ActionEvent e) {
-            if(!checker)
-                checkStartVertex();
-            test.getPaths();
-            System.out.println(test.toString());
+            while(nextIteration());
+            executeButton.setEnabled(false);
+//            if(!checker)
+//                checkStartVertex();
+//            test.getPaths();
+//            System.out.println(test.toString());
         }
     }
 
     /**
      * Класс перехода к следующей итерации
      */
-    class nextIteration implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            if(!checker)
-                checkStartVertex();
-            if (test.getStep() == Dijkstra.Steps.NEAREST_NEIGHBOR_SELECTION)
-                cell = currV;
-            else if (test.getStep() == Dijkstra.Steps.RELAXATION)
-                cell = currE;
+    class nextIterationButton implements ActionListener {
+        @Override
+        public void actionPerformed (ActionEvent e) {
+            nextIteration();
+        }
+    }
 
-            Object result = nextStep(cell);
-            if (result instanceof Double) {
-                Object target = ((mxCell) cell).getTarget();
-                ((mxCell) target).setValue("\n\n"+ ((mxCell) target).getId() + "\n\n(" + result + ")");
-                graph.setCellStyle("defaultVertex", new Object[]{target});
-                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
-            }
-            else if(((mxCell) result).isEdge()) {
-                cell = result;
-                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
-            }
-            else if(((mxCell) result).isVertex()) {
-                if(cell.equals(result))
-                    graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#A9A9A9", new Object[]{result});
-                else
-                    graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#FA8072", new Object[]{result});
-                cell = result;
-            }
+    private boolean nextIteration() {
+        if(!checker) {
+            if(!checkStartVertex())
+                return false;
+        }
+        if (test.getStep() == Dijkstra.Steps.NEAREST_NEIGHBOR_SELECTION)
+            cell = currV;
+        else if (test.getStep() == Dijkstra.Steps.RELAXATION)
+            cell = currE;
+        Object result = nextStep(cell);
+        if (result instanceof Double) {
+            Object target = ((mxCell) cell).getTarget();
+            ((mxCell) target).setValue("\n\n"+ ((mxCell) target).getId() + "\n\n(" + result + ")");
+            graph.setCellStyle("defaultVertex;shape=ellipse", new Object[]{target});
+            graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
+        }
+        else if(((mxCell) result).isEdge()) {
+            cell = result;
+            graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
+        }
+        else if(((mxCell) result).isVertex()) {
+            if(cell.equals(result))
+                graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#A9A9A9", new Object[]{result});
+            else
+                graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#FA8072", new Object[]{result});
+            cell = result;
+        }
 
-            if (!test.isNextStep()) {
-                nextButton.setEnabled(false);
-                System.out.println(test.toString());
-            }
+        if (!test.isNextStep()) {
+            nextButton.setEnabled(false);
+            addEdgeButton.setEnabled(true);
+            addVertexButton.setEnabled(true);
+            System.out.println(test.toString());
+            return false;
+        }
+        else {
+            addEdgeButton.setEnabled(false);
+            addVertexButton.setEnabled(false);
+            return true;
         }
     }
 
     /**
      * Метод для проверки на наличие в графе начальной вершины
      */
-    private void checkStartVertex() {
+    private boolean checkStartVertex() {
         /*
         tmp - массив объектов со всеми вершинами графа
         vertices - массив строк с названиями всех вершин
@@ -274,15 +288,16 @@ public class GUI extends JApplet {
                 "Выбор вершины",
                 JOptionPane.QUESTION_MESSAGE, null,
                 array, array[0]);
-        if(result == null) return;
-        start = result;
+        if(result == null) return false;
+//        start = result;
         for(Object v: tmp)
             if((result.toString()).equals(((mxCell) v).getValue())) {
                 checker = true;
-                graph.setCellStyle("defaultVertex;fillColor=#A9A9A9", new Object[]{v});
+                graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#A9A9A9", new Object[]{v});
                 test = new Dijkstra(graph, v);
-                return;
+                return true;
             }
+        return false;
     }
 
     /**
@@ -308,22 +323,19 @@ public class GUI extends JApplet {
         return null;
     }
 
-    public Object nextStep(Object cell) {
+    private Object nextStep(Object cell) {
         Object result = new mxCell();
         switch (test.getStep()) {
             case UNVISITED_VERTEX_SELECTION:
-                System.out.println("1");
                 currV = test.selectUnvisitedVertex();
                 result = currV;
                 break;
             case NEAREST_NEIGHBOR_SELECTION:
-                System.out.println("2");
                 currE = test.selectNearestNeighbor(cell);
                 test.removeVertex(cell, currE);
                 result = currE;
                 break;
             case RELAXATION:
-                System.out.println("3");
                 result = test.relax(cell);
                 break;
         }
