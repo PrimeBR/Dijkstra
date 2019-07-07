@@ -191,7 +191,7 @@ public class Dijkstra {
         for (Map.Entry e: distance.entrySet()) {
             if (!((mxCell) e.getKey()).equals(source)) {
                 builder.append("vertex = ");
-                builder.append(((mxCell) e.getKey()).getValue().toString());
+                builder.append(((mxCell) e.getKey()).getId());
                 builder.append(", distance = ");
                 builder.append(e.getValue().toString());
                 builder.append("\n");
