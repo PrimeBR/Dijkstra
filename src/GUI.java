@@ -7,7 +7,6 @@ import com.mxgraph.view.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import javax.swing.border.Border;
 
@@ -93,7 +92,6 @@ public class GUI extends JApplet {
     /**
      * Метод для вызова инициализации графа, кнопок и кругового макета
      */
-    @Override
     public void init() {
         initButtons();
         initGraph();
@@ -236,6 +234,7 @@ public class GUI extends JApplet {
                 Object target = ((mxCell) cell).getTarget();
                 ((mxCell) target).setValue("\n\n"+ ((mxCell) target).getId() + "\n\n(" + result + ")");
                 graph.setCellStyle("defaultVertex", new Object[]{target});
+                graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
             }
             else if(((mxCell) result).isEdge()) {
                 cell = result;
