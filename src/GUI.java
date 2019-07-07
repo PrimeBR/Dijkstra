@@ -96,13 +96,13 @@ public class GUI extends JApplet {
         initButtons();
         initGraph();
         model.beginUpdate();
-        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 80, 30);
+        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 50, 50, "shape=ellipse");
         ((mxCell) v1).setId("1");
-        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 80, 30);
+        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 50, 50, "shape=ellipse");
         ((mxCell) v2).setId("2");
-        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 80, 30);
+        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 50, 50, "shape=ellipse");
         ((mxCell) v3).setId("3");
-        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 80, 30);
+        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 50, 50, "shape=ellipse");
         ((mxCell) v4).setId("4");
 
         graph.insertEdge(parent, "1", 3.14, v1, v2);
@@ -158,7 +158,7 @@ public class GUI extends JApplet {
                         return;
                     }
                 }
-                Object tmp = graph.insertVertex(parent, null, input, 100, 100, 80, 30);
+                Object tmp = graph.insertVertex(parent, null, input, 100, 100, 50, 50, "shape=ellipse");
                 ((mxCell) tmp).setId(input);
                 layout.execute(graph.getDefaultParent());
             }
@@ -242,9 +242,9 @@ public class GUI extends JApplet {
             }
             else if(((mxCell) result).isVertex()) {
                 if(cell.equals(result))
-                    graph.setCellStyle("defaultVertex;fillColor=#A9A9A9", new Object[]{result});
+                    graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#A9A9A9", new Object[]{result});
                 else
-                    graph.setCellStyle("defaultVertex;fillColor=#FA8072", new Object[]{result});
+                    graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#FA8072", new Object[]{result});
                 cell = result;
             }
 
