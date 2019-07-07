@@ -44,6 +44,7 @@ public class GUI extends JApplet {
     private JButton nextButton = new JButton("▶");
     private JButton executeButton = new JButton("▶▶");
     private JButton helpButton = new JButton(" ? ");
+    private JButton showResultAlgoButton = new JButton("\uD83C\uDFC1");
     private final String TITLE_message = "Справка";
 
     /**
@@ -76,6 +77,12 @@ public class GUI extends JApplet {
         executeButton.addActionListener(new Execute());
         getContentPane().add(executeButton);
         executeButton.setBorder(new RoundedBorder(10));
+
+        showResultAlgoButton.setBounds(740, 355, 50, 50);
+        showResultAlgoButton.addActionListener(new showResultAlgo());
+        getContentPane().add(showResultAlgoButton);
+        showResultAlgoButton.setBorder(new RoundedBorder(10));
+        showResultAlgoButton.setEnabled(false);
 
         helpButton.setBounds(740, 80, 50, 50);
         helpButton.addActionListener(e -> JOptionPane.showMessageDialog(GUI.this,
@@ -259,13 +266,27 @@ public class GUI extends JApplet {
             nextButton.setEnabled(false);
             addEdgeButton.setEnabled(true);
             addVertexButton.setEnabled(true);
-            System.out.println(test.toString());
+            showResultAlgoButton.setEnabled(true);
+        //    System.out.println(test.toString());
             return false;
         }
         else {
             addEdgeButton.setEnabled(false);
             addVertexButton.setEnabled(false);
             return true;
+        }
+    }
+
+    /**
+     * Класс вывода результата работы алгоритма Дейкстры в новом диалоговом окне
+     */
+
+    class showResultAlgo implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JOptionPane jOptionPane = new JOptionPane();
+            jOptionPane.showMessageDialog(GUI.this,
+                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + test.toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
