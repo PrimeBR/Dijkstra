@@ -196,8 +196,9 @@ public class GUI extends JApplet {
                 while ((strLine = br.readLine()) != null) {
                     String[] parts = strLine.split(" ", 3);
                     if(parts.length < 3) {
-                        JOptionPane.showMessageDialog(null, "Некорректный ввод данных в файле.\n" +
-                                "Задавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
+                                "\"\nЗадавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                        graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
                         return;
                     }
                     Object From = null;
@@ -308,8 +309,8 @@ public class GUI extends JApplet {
             return true;
         }
         catch (NumberFormatException w) {
-            JOptionPane.showMessageDialog(null, "Введена неккоректная запись в строке!\n" + strLine +
-                    "\nСовет: используйте \".\" для разделения целой и дробной частей.", "Warning!", JOptionPane.PLAIN_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Неккоректная строка: \"" + strLine +
+                    "\"\n<html><i>Совет: используйте \".\" для разделения целой и дробной частей.", "Warning!", JOptionPane.PLAIN_MESSAGE);
             graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
             return false;
         }
