@@ -7,10 +7,13 @@ import com.mxgraph.view.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.border.Border;
+import javax.swing.filechooser.FileFilter;
 
 /**
  * Класс реализации графического интерфейса
@@ -46,7 +49,8 @@ public class GUI extends JApplet {
     private JButton nextButton = new JButton("▶");
     private JButton executeButton = new JButton("▶▶");
     private JButton helpButton = new JButton(" ? ");
-    private JButton fileButton = new JButton("\uD83D\uDCBE");
+    private JButton fileButton = new JButton("\uD83D\uDCC1");
+    private JButton saveButton = new JButton("\uD83D\uDCBE");
     private JButton showResultAlgoButton = new JButton("\uD83C\uDFC1");
 
     private final String TITLE_message = "Справка";
@@ -56,7 +60,7 @@ public class GUI extends JApplet {
      * start - объект стартовой вершины
      */
     private boolean checker = false;
-//    private Object start;
+    private Object start;
 
     /**
      * Задание формы кнопок и их инициализация
@@ -103,6 +107,12 @@ public class GUI extends JApplet {
         fileButton.addActionListener(new fileReader());
         getContentPane().add(fileButton);
         fileButton.setBorder(new RoundedBorder(10));
+
+        saveButton.setBounds(740, 410, 50, 50);
+        saveButton.addActionListener(new saveResultFile());
+        getContentPane().add(saveButton);
+        saveButton.setBorder(new RoundedBorder(10));
+        saveButton.setEnabled(false);
     }
 
     /**
@@ -288,6 +298,7 @@ public class GUI extends JApplet {
         public void actionPerformed (ActionEvent e) {
             while(nextIteration());
             executeButton.setEnabled(false);
+            saveButton.setEnabled(true);
 //            if(!checker)
 //                checkStartVertex();
 //            test.getPaths();
@@ -338,6 +349,7 @@ public class GUI extends JApplet {
             addEdgeButton.setEnabled(true);
             addVertexButton.setEnabled(true);
             showResultAlgoButton.setEnabled(true);
+            saveButton.setEnabled(true);
         //    System.out.println(test.toString());
             return false;
         }
@@ -357,7 +369,7 @@ public class GUI extends JApplet {
         public void actionPerformed(ActionEvent e) {
             JOptionPane jOptionPane = new JOptionPane();
             jOptionPane.showMessageDialog(GUI.this,
-                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + test.toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
+                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + ((mxCell) start).getId() + " - initial vertex\n" + test.toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -386,10 +398,50 @@ public class GUI extends JApplet {
             if((result.toString()).equals(((mxCell) v).getValue())) {
                 checker = true;
                 graph.setCellStyle("defaultVertex;shape=ellipse;fillColor=#A9A9A9", new Object[]{v});
+                start = v;
                 test = new Dijkstra(graph, v);
                 return true;
             }
         return false;
+    }
+
+    class saveResultFile implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.setCurrentDirectory(new File("."));
+            jFileChooser.setSelectedFile(new File("result.txt"));
+            jFileChooser.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    if(f.getName().endsWith("txt")){
+                        return true;
+                    }
+                    return false;
+                }
+                @Override
+                public String getDescription() {
+                    return "Текстовые файлы (*.txt)";
+                }
+            });
+            int i = jFileChooser.showSaveDialog(getContentPane());
+            File file = jFileChooser.getSelectedFile();
+            JOptionPane jOptionPane = new JOptionPane();
+            if(i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")){
+                try {
+                    FileWriter fw = new FileWriter(file);
+                    fw.write("Результат работы агоритма Дейкстры:\n\n" + ((mxCell) start).getId() + " - initial vertex\n\n" + test.toString());
+                    jOptionPane.showMessageDialog(GUI.this, "<html><h2>Файл сохранен успешно!</h2><p>", "Сохранение файла", JOptionPane.INFORMATION_MESSAGE);
+                    fw.flush();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            else if(i == jFileChooser.CANCEL_OPTION){}
+            else{
+                jOptionPane.showMessageDialog(GUI.this, "<html><h2>Ошибка сохранения файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
     }
 
     /**
