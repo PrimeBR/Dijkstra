@@ -3,7 +3,6 @@ import com.mxgraph.layout.*;
 import com.mxgraph.model.*;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
-import com.mxgraph.util.mxEvent;
 import com.mxgraph.view.*;
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +10,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 
@@ -52,6 +50,9 @@ public class GUI extends JApplet {
     private JButton fileButton = new JButton("\uD83D\uDCC1");
     private JButton saveButton = new JButton("\uD83D\uDCBE");
     private JButton showResultAlgoButton = new JButton("\uD83C\uDFC1");
+    private JCheckBox logChecker = new JCheckBox("logs");
+    private JTextPane logsPane = new JTextPane();
+    private JScrollPane scrollPane = new JScrollPane(logsPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
     private final String TITLE_message = "Справка";
 
@@ -118,6 +119,27 @@ public class GUI extends JApplet {
         getContentPane().add(saveButton);
         saveButton.setBorder(new RoundedBorder(10));
         saveButton.setEnabled(false);
+
+        logChecker.setBounds(749, 3, 49, 25);
+        getContentPane().add(logChecker);
+        logChecker.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                scrollPane.setVisible(true);
+            }
+            else {
+                scrollPane.setVisible(false);
+            }
+        });
+
+        logsPane.setBounds(555, 30, 220, 1000);
+//        getContentPane().add(logsPane);
+        logsPane.setBackground( new Color(238, 238, 238));
+
+
+        scrollPane.setBounds(555, 30, 220, 400);
+        getContentPane().add(scrollPane);
+        scrollPane.setVisible(false);
+
     }
 
     /**
@@ -126,22 +148,6 @@ public class GUI extends JApplet {
     public void init() {
         initButtons();
         initGraph();
-//        model.beginUpdate();
-//        Object v1 = graph.insertVertex(parent, null, "1", 0, 0, 45, 45, "shape=ellipse");
-//        ((mxCell) v1).setId("1");
-//        Object v2 = graph.insertVertex(parent, null, "2", 0, 0, 45, 45, "shape=ellipse");
-//        ((mxCell) v2).setId("2");
-//        Object v3 = graph.insertVertex(parent, null, "3", 0, 0, 45, 45, "shape=ellipse");
-//        ((mxCell) v3).setId("3");
-//        Object v4 = graph.insertVertex(parent, null, "4", 0, 0, 45, 45, "shape=ellipse");
-//        ((mxCell) v4).setId("4");
-
-//        graph.insertEdge(parent, "1", 3.14, v1, v2);
-//        graph.insertEdge(parent, "2", 2.71828, v2, v3);
-//        graph.insertEdge(parent, "3", 2.28, v3, v1);
-//        graph.insertEdge(parent, "4", 1.448, v4, v3);
-//        graph.insertEdge(parent, "5", 5.0, v1, v4);
-//        model.endUpdate();
         initCircleLayout();
     }
 
@@ -165,9 +171,6 @@ public class GUI extends JApplet {
         graph = new mxGraph();
         model = new mxGraphModel();
         parent = graph.getDefaultParent();
-//        Map<String, Object> style = graph.getStylesheet().getDefaultEdgeStyle();
-//        style.put(mxConstants.SHAPE_CURVE, true);
-//        style.put(mxConstants.STYLE_EDGE, mxConstants.EDGESTYLE_ENTITY_RELATION);
         setPreferredSize(DEFAULT_SIZE);
         mxGraphComponent graphComponent = new mxGraphComponent(graph);
         getContentPane().add(graphComponent);
@@ -177,6 +180,10 @@ public class GUI extends JApplet {
     class fileReader implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try{
+                graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
+                addVertexButton.setEnabled(true);
+                addEdgeButton.setEnabled(true);
+                checker = false;
                 String filename = JOptionPane.showInputDialog(
                         GUI.this,
                         "<html><h2>Введите название файла");
@@ -201,13 +208,12 @@ public class GUI extends JApplet {
                         if (parts[1].equals(((mxCell) v).getValue().toString()))
                             To = v;
                     }
-                    if(((mxCell) From) == null) {
+                    if(From == null) {
                         From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
-
                         ((mxCell) From).setId(parts[0]);
                         layout.execute(graph.getDefaultParent());
                     }
-                    if(((mxCell) To) == null) {
+                    if(To == null) {
                         To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
                         ((mxCell) To).setId(parts[1]);
                         layout.execute(graph.getDefaultParent());
@@ -217,7 +223,7 @@ public class GUI extends JApplet {
                 }
                 nextButton.setEnabled(true);
                 executeButton.setEnabled(true);
-                fileButton.setEnabled(false);
+                fileButton.setEnabled(true);
             } catch (IOException error){
                 JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
             }
@@ -256,8 +262,6 @@ public class GUI extends JApplet {
      */
     class addEdgeButtonEventListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            //mxCell vFrom = new mxCell();
-            //mxCell vTo = new mxCell();
             String from = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите первую вершину:");
@@ -299,7 +303,8 @@ public class GUI extends JApplet {
                 JOptionPane.showMessageDialog(null, "Введено ребро отрицательного веса", "Warning!", JOptionPane.PLAIN_MESSAGE);
                 return false;
             }
-            graph.insertEdge(parent, null, Double.parseDouble(weight), From, To);
+            if(isEnable(From, To) && isEnable(To, From))
+                graph.insertEdge(parent, null, Double.parseDouble(weight), From, To);
             return true;
         }
         catch (NumberFormatException w) {
@@ -310,16 +315,22 @@ public class GUI extends JApplet {
         }
     }
 
+    private boolean isEnable(Object v1, Object v2) {
+        for(Object v: graph.getEdgesBetween(v1, v2))
+            if(((mxCell) v).getTarget().equals(v1)) {
+                JOptionPane.showMessageDialog(null, "Между вершинами " + ((mxCell) v1).getValue().toString()
+                        + " и " + ((mxCell) v2).getValue().toString() + " уже существует ребро!", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                return false;
+            }
+        return true;
+    }
+
     class Execute implements ActionListener {
         @Override
         public void actionPerformed (ActionEvent e) {
             while(nextIteration());
             executeButton.setEnabled(false);
             saveButton.setEnabled(true);
-//            if(!checker)
-//                checkStartVertex();
-//            test.getPaths();
-//            System.out.println(test.toString());
         }
     }
 
@@ -431,10 +442,7 @@ public class GUI extends JApplet {
             jFileChooser.setFileFilter(new FileFilter() {
                 @Override
                 public boolean accept(File f) {
-                    if(f.getName().endsWith("txt")){
-                        return true;
-                    }
-                    return false;
+                    return f.getName().endsWith("txt");
                 }
                 @Override
                 public String getDescription() {
@@ -488,16 +496,16 @@ public class GUI extends JApplet {
         Object result = new mxCell();
         switch (test.getStep()) {
             case UNVISITED_VERTEX_SELECTION:
-                currV = test.selectUnvisitedVertex();
+                currV = test.selectUnvisitedVertex(logsPane);
                 result = currV;
                 break;
             case NEAREST_NEIGHBOR_SELECTION:
-                currE = test.selectNearestNeighbor(cell);
+                currE = test.selectNearestNeighbor(cell, logsPane);
                 test.removeVertex(cell, currE);
                 result = currE;
                 break;
             case RELAXATION:
-                result = test.relax(cell);
+                result = test.relax(cell, logsPane);
                 break;
         }
 
