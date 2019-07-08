@@ -98,8 +98,9 @@ public class GUI extends JApplet {
                         "<i><br>Описание кнопок:</i> <br>" +
                         "1) V - кнопка добавления вершины в граф;<br>2) E - кнопка добавления ребра в граф;<br>" +
                         "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.<br>" +
-                        "4) \uD83D\uDCBE - кнопака для считывания из файла.<br>" +
+                        "4) \uD83D\uDCC1 - кнопака для считывания из файла.<br>" +
                         "5) \uD83C\uDFC1 - кнопка показа конечного результата алгоритма<br></p>" +
+                        "6) \uD83D\uDCBE - кнопка вывода результата алгоритма в файл<br></p>" +
                         "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
 
         getContentPane().add(helpButton);
@@ -432,7 +433,7 @@ public class GUI extends JApplet {
             if(i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")){
                 try {
                     FileWriter fw = new FileWriter(file);
-                    fw.write("Результат работы агоритма Дейкстры:\n\n" + ((mxCell) start).getId() + " - initial vertex\n\n" + test.toString());
+                    fw.write("Результат работы агоритма Дейкстры:\n" + '\n' + ((mxCell) start).getId() + " - initial vertex\n"+ '\n' + test.toString());
                     jOptionPane.showMessageDialog(GUI.this, "<html><h2>Файл сохранен успешно!</h2><p>", "Сохранение файла", JOptionPane.INFORMATION_MESSAGE);
                     fw.flush();
                 } catch (Exception ex) {
