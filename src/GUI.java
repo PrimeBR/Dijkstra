@@ -7,8 +7,6 @@ import com.mxgraph.view.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -66,39 +64,41 @@ public class GUI extends JApplet {
      * Задание формы кнопок и их инициализация
      */
     private void initButtons() {
-        addVertexButton.setBounds(740, 135, 50, 50);
+        addVertexButton.setBounds(10, 135, 50, 50);
         addVertexButton.addActionListener(new addVertexButtonEventListener());
         getContentPane().add(addVertexButton);
         addVertexButton.setBorder(new RoundedBorder(10));
 
-        addEdgeButton.setBounds(740, 190, 50, 50);
+        addEdgeButton.setBounds(10, 190, 50, 50);
         addEdgeButton.addActionListener(new addEdgeButtonEventListener());
         getContentPane().add(addEdgeButton);
         addEdgeButton.setBorder(new RoundedBorder(10));
 
-        nextButton.setBounds(740, 245, 50, 50);
+        nextButton.setBounds(10, 245, 50, 50);
         nextButton.addActionListener(new nextIterationButton());
         getContentPane().add(nextButton);
         nextButton.setBorder(new RoundedBorder(10));
+        nextButton.setEnabled(false);
 
-        executeButton.setBounds(740, 300, 50, 50);
+        executeButton.setBounds(10, 300, 50, 50);
         executeButton.addActionListener(new Execute());
         getContentPane().add(executeButton);
         executeButton.setBorder(new RoundedBorder(10));
+        executeButton.setEnabled(false);
 
-        showResultAlgoButton.setBounds(740, 355, 50, 50);
+        showResultAlgoButton.setBounds(10, 355, 50, 50);
         showResultAlgoButton.addActionListener(new showResultAlgo());
         getContentPane().add(showResultAlgoButton);
         showResultAlgoButton.setBorder(new RoundedBorder(10));
         showResultAlgoButton.setEnabled(false);
 
-        helpButton.setBounds(740, 25, 50, 50);
+        helpButton.setBounds(10, 25, 50, 50);
         helpButton.addActionListener(e -> JOptionPane.showMessageDialog(GUI.this,
                 "<html><h2>Справка:</h2><p>Данный графический интерфейс визуализирует алгоритм<br> поиска кратчайшего пути в графе - алгоритм Дейкстры.<br>" +
                         "<i><br>Описание кнопок:</i> <br>" +
                         "1) V - кнопка добавления вершины в граф;<br>2) E - кнопка добавления ребра в граф;<br>" +
                         "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.<br>" +
-                        "4) \uD83D\uDCC1 - кнопака для считывания из файла.<br>" +
+                        "4) \uD83D\uDCC1 - кнопка для считывания из файла.<br>" +
                         "5) \uD83C\uDFC1 - кнопка показа конечного результата алгоритма<br></p>" +
                         "6) \uD83D\uDCBE - кнопка вывода результата алгоритма в файл<br></p>" +
                         "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
@@ -106,12 +106,12 @@ public class GUI extends JApplet {
         getContentPane().add(helpButton);
         helpButton.setBorder(new RoundedBorder(10));
 
-        fileButton.setBounds(740, 80, 50, 50);
+        fileButton.setBounds(10, 80, 50, 50);
         fileButton.addActionListener(new fileReader());
         getContentPane().add(fileButton);
         fileButton.setBorder(new RoundedBorder(10));
 
-        saveButton.setBounds(740, 410, 50, 50);
+        saveButton.setBounds(10, 410, 50, 50);
         saveButton.addActionListener(new saveResultFile());
         getContentPane().add(saveButton);
         saveButton.setBorder(new RoundedBorder(10));
@@ -183,11 +183,10 @@ public class GUI extends JApplet {
                 BufferedReader br = new BufferedReader(new FileReader(f));
                 String strLine;
                 while ((strLine = br.readLine()) != null) {
-                    String[] parts = strLine.split(" ");
+                    String[] parts = strLine.split(" ", 3);
                     if(parts.length < 3) {
                         JOptionPane.showMessageDialog(null, "Некорректный ввод данных в файле.\n" +
                                 "Задавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
-                        graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
                         return;
                     }
                     Object From = null;
@@ -208,11 +207,14 @@ public class GUI extends JApplet {
                         ((mxCell) To).setId(parts[1]);
                         layout.execute(graph.getDefaultParent());
                     }
-                    DoubleParser((mxCell) From, (mxCell) To, parts[2]);
+                    if(!DoubleParser((mxCell) From, (mxCell) To, parts[2]))
+                        return;
                 }
+                nextButton.setEnabled(true);
+                executeButton.setEnabled(true);
                 fileButton.setEnabled(false);
             } catch (IOException error){
-                System.out.println("Ошибка");
+                JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
             }
         }
     }
@@ -237,6 +239,8 @@ public class GUI extends JApplet {
                 Object tmp = graph.insertVertex(parent, null, input, 100, 100, 45, 45, "shape=ellipse");
                 ((mxCell) tmp).setId(input);
                 layout.execute(graph.getDefaultParent());
+                nextButton.setEnabled(true);
+                executeButton.setEnabled(true);
             }
         }
 
@@ -276,23 +280,28 @@ public class GUI extends JApplet {
             String weight = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите вес ребра:");
+            if(weight == null)
+                return;
             DoubleParser(vFrom, vTo, weight);
 
         }
 
     }
 
-    private void DoubleParser(mxCell From, mxCell To, String weight) {
+    private boolean DoubleParser(mxCell From, mxCell To, String weight) {
         try {
             if(Double.parseDouble(weight) < 0) {
                 JOptionPane.showMessageDialog(null, "Введено ребро отрицательного веса", "Warning!", JOptionPane.PLAIN_MESSAGE);
-                return;
+                return false;
             }
             graph.insertEdge(parent, null, Double.parseDouble(weight), From, To);
+            return true;
         }
         catch (NumberFormatException w) {
             JOptionPane.showMessageDialog(null, "Введено неккоректная запись числа!\n" +
                     "Совет: используйте \".\" для разделения целой и дробной частей.", "Warning!", JOptionPane.PLAIN_MESSAGE);
+            graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
+            return false;
         }
     }
 
@@ -349,8 +358,8 @@ public class GUI extends JApplet {
 
         if (!test.isNextStep()) {
             nextButton.setEnabled(false);
-            addEdgeButton.setEnabled(true);
-            addVertexButton.setEnabled(true);
+            addEdgeButton.setEnabled(false);
+            addVertexButton.setEnabled(false);
             showResultAlgoButton.setEnabled(true);
             saveButton.setEnabled(true);
         //    System.out.println(test.toString());

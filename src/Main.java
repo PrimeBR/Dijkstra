@@ -11,7 +11,7 @@ public class Main {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dimension = toolkit.getScreenSize();
         frame.setLocation(dimension.width/2 - 400, dimension.height/2 - 250);
-        frame.setTitle("JGraphT Adapter to JGraphX Demo");
+        frame.setTitle("Graph creator");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
