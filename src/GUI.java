@@ -11,7 +11,7 @@ import javax.swing.filechooser.FileFilter;
  */
 public class GUI extends JApplet {
     private static final Dimension DEFAULT_SIZE = new Dimension(800, 500);
-    private Graph graph = new Graph();
+    private GAdapter graph = new GAdapter();
     /**
      *     addVertexButton - кнопка для добавления вершины в граф
      *     addEdgeButton - кнопка для добавления ребра в граф
@@ -36,10 +36,6 @@ public class GUI extends JApplet {
     /**
      * Задание формы кнопок и их инициализация
      */
-    static Dimension getDimension() {
-        return DEFAULT_SIZE;
-    }
-
     private void initButtons() {
         addVertexButton.setBounds(10, 135, 50, 50);
         addVertexButton.addActionListener(e -> {
@@ -109,7 +105,7 @@ public class GUI extends JApplet {
         showResultAlgoButton.addActionListener(e -> {
             JOptionPane jOptionPane = new JOptionPane();
             jOptionPane.showMessageDialog(GUI.this,
-                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + ((mxCell) graph.getStart()).getId() + " - стартовая вершина\n" + graph.getTest().toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
+                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + ((mxCell) graph.getStart()).getId() + " - стартовая вершина\n" + graph.getDijkstra().toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
 
         });
         getContentPane().add(showResultAlgoButton);
@@ -147,7 +143,7 @@ public class GUI extends JApplet {
             if(i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")) {
                 try {
                     FileWriter fw = new FileWriter(file);
-                    fw.write("Результат работы агоритма Дейкстры:\n" + '\n' + ((mxCell) graph.getStart()).getId() + " - стартовая вершина\n"+ '\n' + graph.getTest().toString());
+                    fw.write("Результат работы агоритма Дейкстры:\n" + '\n' + ((mxCell) graph.getStart()).getId() + " - стартовая вершина\n"+ '\n' + graph.getDijkstra().toString());
                     jOptionPane.showMessageDialog(GUI.this, "<html><h2>Файл сохранен успешно!</h2><p>", "Сохранение файла", JOptionPane.INFORMATION_MESSAGE);
                     fw.flush();
                 } catch (Exception ex) {
@@ -208,6 +204,10 @@ public class GUI extends JApplet {
     static JButton getShowResultAlgoButton() { return showResultAlgoButton; }
 
     static JTextPane getLogsPane() { return logsPane; }
+
+    static Dimension getDimension() {
+        return DEFAULT_SIZE;
+    }
 
     private JFileChooser createFileChooser(String exampleFileName){
         JFileChooser jFileChooser = new JFileChooser();
