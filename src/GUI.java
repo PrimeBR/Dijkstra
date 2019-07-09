@@ -177,10 +177,10 @@ public class GUI extends JApplet {
 
     }
 
-    private JFileChooser createFileChooser(){
+    private JFileChooser createFileChooser(String exampleFileName){
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setCurrentDirectory(new File("."));
-        jFileChooser.setSelectedFile(new File("file.txt"));
+        jFileChooser.setSelectedFile(new File(exampleFileName));
         jFileChooser.setFileFilter(new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -196,7 +196,7 @@ public class GUI extends JApplet {
 
     class fileReader implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            JFileChooser jFileChooser = createFileChooser();
+            JFileChooser jFileChooser = createFileChooser("file.txt");
             int i = jFileChooser.showOpenDialog(getContentPane());
             File pathToFile = jFileChooser.getCurrentDirectory();
             File file = jFileChooser.getSelectedFile();
@@ -463,7 +463,7 @@ public class GUI extends JApplet {
     class saveResultFile implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser jFileChooser = createFileChooser();
+            JFileChooser jFileChooser = createFileChooser("result.txt");
             int i = jFileChooser.showSaveDialog(getContentPane());
             File file = jFileChooser.getSelectedFile();
             JOptionPane jOptionPane = new JOptionPane();
