@@ -9,7 +9,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 
-public class Graph {
+class Graph {
     private Dijkstra test;
     private mxCircleLayout layout;
     private mxGraph graph;
@@ -24,11 +24,11 @@ public class Graph {
     private boolean checker = false;
     private Object start;
 
-    public Dijkstra getTest() { return test; }
+    Dijkstra getTest() { return test; }
 
-    public Object getStart() { return start; }
+    Object getStart() { return start; }
 
-    public void initCircleLayout() {
+    void initCircleLayout() {
         layout = new mxCircleLayout(graph);
         int radius = 150;
         layout.setX0((GUI.getDimension().width / 2.0) - 1.33 * radius);
@@ -41,17 +41,17 @@ public class Graph {
     /**
      * Метод инициализации графа
      */
-    public void initGraph() {
+    void initGraph() {
         graph = new mxGraph();
         parent = graph.getDefaultParent();
         graphComponent = new mxGraphComponent(graph);
     }
 
-    public mxGraphComponent getGraphComponent() {
+    mxGraphComponent getGraphComponent() {
         return graphComponent;
     }
 
-    public void fileReader(JFileChooser jFileChooser, Container contentPane) {
+    void fileReader(JFileChooser jFileChooser, Container contentPane) {
         int i = jFileChooser.showOpenDialog(contentPane);
         File pathToFile = jFileChooser.getCurrentDirectory();
         File file = jFileChooser.getSelectedFile();
@@ -59,6 +59,7 @@ public class Graph {
         if (i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")) {
             try {
                 graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
+                GUI.getShowResultAlgoButton().setEnabled(false);
                 GUI.getAddVertexButton().setEnabled(true);
                 GUI.getAddEdgeButton().setEnabled(true);
                 checker = false;
@@ -108,7 +109,7 @@ public class Graph {
         }
     }
 
-    public void addVertexButtonEventListener(String input) {
+    void addVertexButtonEventListener(String input) {
         if (input != null) {
             if (input.equals(""))
                 return;
@@ -126,7 +127,7 @@ public class Graph {
         }
     }
 
-    public boolean DoubleParser(mxCell From, mxCell To, String weight, String strLine) {
+    boolean DoubleParser(mxCell From, mxCell To, String weight, String strLine) {
         try {
             if(Double.parseDouble(weight) < 0) {
                 JOptionPane.showMessageDialog(null, "Введено ребро отрицательного веса", "Warning!", JOptionPane.PLAIN_MESSAGE);
@@ -144,7 +145,7 @@ public class Graph {
         }
     }
 
-    public boolean nextIteration() {
+    boolean nextIteration() {
         if(!checker) {
             if(!checkStartVertex())
                 return false;
@@ -178,10 +179,10 @@ public class Graph {
             GUI.getAddVertexButton().setEnabled(false);
             GUI.getShowResultAlgoButton().setEnabled(true);
             GUI.getSaveButton().setEnabled(true);
-            //    System.out.println(test.toString());
             return false;
         }
         else {
+            GUI.getShowResultAlgoButton().setEnabled(true);
             GUI.getAddEdgeButton().setEnabled(false);
             GUI.getAddVertexButton().setEnabled(false);
             return true;
@@ -205,7 +206,6 @@ public class Graph {
                 JOptionPane.QUESTION_MESSAGE, null,
                 array, array[0]);
         if(result == null) return false;
-//        start = result;
         for(Object v: tmp)
             if((result.toString()).equals(((mxCell) v).getValue())) {
                 checker = true;
@@ -217,7 +217,7 @@ public class Graph {
         return false;
     }
 
-    public mxCell cellFounder(String result) {
+    mxCell cellFounder(String result) {
         for(Object v: graph.getChildVertices(graph.getDefaultParent())) {
             if (result.equals(((mxCell) v).getValue())) {
                 return (mxCell) v;
@@ -226,7 +226,7 @@ public class Graph {
         return null;
     }
 
-    public Object nextStep(Object cell) {
+    private Object nextStep(Object cell) {
         Object result = new mxCell();
         switch (test.getStep()) {
             case UNVISITED_VERTEX_SELECTION:
@@ -246,7 +246,7 @@ public class Graph {
         return result;
     }
 
-    public boolean isEnable(Object v1, Object v2) {
+    private boolean isEnable(Object v1, Object v2) {
         for(Object v: graph.getEdgesBetween(v1, v2))
             if(((mxCell) v).getTarget().equals(v1)) {
                 JOptionPane.showMessageDialog(null, "Между вершинами " + ((mxCell) v1).getValue().toString()
