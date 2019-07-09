@@ -50,57 +50,43 @@ public class Graph {
         return graphComponent;
     }
 
-    public void fileReader(JFileChooser jFileChooser, JOptionPane jOptionPane, int i, File file, File pathToFile) {
-        if (i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")) {
-            try {
+    public void fileReader(BufferedReader br) throws IOException {
+        graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
+        String strLine;
+        while ((strLine = br.readLine()) != null) {
+            String[] parts = strLine.split(" ", 3);
+            if (parts.length < 3) {
+                JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
+                        "\"\nЗадавайте ребра в виде: \"начальная вершина\" \"конечная вершина\" \"вес\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
                 graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
-                GUI.getAddVertexButton().setEnabled(true);
-                GUI.getAddEdgeButton().setEnabled(true);
-                checker = false;
-                File f = new File(pathToFile.toString(), file.getName());
-                BufferedReader br = new BufferedReader(new FileReader(f));
-                String strLine;
-                while ((strLine = br.readLine()) != null) {
-                    String[] parts = strLine.split(" ", 3);
-                    if (parts.length < 3) {
-                        JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
-                                "\"\nЗадавайте ребра в виде: \"начальная вершина\" \"конечная вершина\" \"вес\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
-                        graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
-                        return;
-                    }
-                    Object From = null;
-                    Object To = null;
-                    for (Object v : graph.getChildVertices(graph.getDefaultParent())) {
-                        if (parts[0].equals(((mxCell) v).getValue().toString()))
-                            From = v;
-                        if (parts[1].equals(((mxCell) v).getValue().toString()))
-                            To = v;
-                    }
-                    if (From == null) {
-                        From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
-                        ((mxCell) From).setId(parts[0]);
-                        layout.execute(graph.getDefaultParent());
-                    }
-                    if (To == null) {
-                        To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
-                        ((mxCell) To).setId(parts[1]);
-                        layout.execute(graph.getDefaultParent());
-                    }
-                    if (!DoubleParser((mxCell) From, (mxCell) To, parts[2], strLine))
-                        return;
-                }
-                GUI.getNextButton().setEnabled(true);
-                GUI.getExecuteButton().setEnabled(true);
-                GUI.getFileButton().setEnabled(true);
-
-                GUI.getLogsPane().setText("");
-            } catch (IOException error) {
-                JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                return;
             }
-        } else if (i == jFileChooser.CANCEL_OPTION) {
-        } else {
-            jOptionPane.showMessageDialog(null, "<html><h2>Ошибка открытия файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
+            Object From = null;
+            Object To = null;
+            for (Object v : graph.getChildVertices(graph.getDefaultParent())) {
+                if (parts[0].equals(((mxCell) v).getValue().toString()))
+                    From = v;
+                if (parts[1].equals(((mxCell) v).getValue().toString()))
+                    To = v;
+            }
+            if (From == null) {
+                From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
+                ((mxCell) From).setId(parts[0]);
+                layout.execute(graph.getDefaultParent());
+            }
+            if (To == null) {
+                To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
+                ((mxCell) To).setId(parts[1]);
+                layout.execute(graph.getDefaultParent());
+            }
+            if (!DoubleParser((mxCell) From, (mxCell) To, parts[2], strLine))
+                return;
         }
+        GUI.getNextButton().setEnabled(true);
+        GUI.getExecuteButton().setEnabled(true);
+        GUI.getFileButton().setEnabled(true);
+
+        GUI.getLogsPane().setText("");
     }
 
     public void addVertexButtonEventListener(String input) {
