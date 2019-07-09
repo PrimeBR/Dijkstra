@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.util.*;
 
 import static java.lang.Double.POSITIVE_INFINITY;
+import static java.lang.Double.min;
 
 public class Dijkstra {
     public enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
@@ -60,14 +61,25 @@ public class Dijkstra {
 
     }
 
+    /**
+     * получение текущего значения step для координирования выполнения алгоритма
+     */
     public Steps getStep() {
         return step;
     }
 
+    /**
+     * алгоритм заканчивается, когда все вершины просмотрены,
+     * либо когда расстояния до всех оставшихся непросмотренных вершин равно бесконености
+     */
     public boolean isNextStep() {
-        return !unvisitedVertices.isEmpty();
+        return !unvisitedVertices.isEmpty() && minDistance() < POSITIVE_INFINITY;
     }
 
+    /**
+     * после просмотра всех исходящих ребер из вершины
+     * она удаляется из списка непросмотренных
+     */
     public void removeVertex(Object vertex, Object edge) {
         if (edge.equals(vertex))
             unvisitedVertices.remove(vertex);
@@ -84,6 +96,7 @@ public class Dijkstra {
          */
         Object vertex = new mxCell();
         double mindistance = minDistance();
+
         for (Object v: distance.keySet()) {
             if (unvisitedVertices.contains(v) && distance.get(v).equals(mindistance)) {
                 vertex = v;
