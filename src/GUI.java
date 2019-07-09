@@ -177,57 +177,81 @@ public class GUI extends JApplet {
 
     }
 
+    private JFileChooser createFileChooser(){
+        JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.setCurrentDirectory(new File("."));
+        jFileChooser.setSelectedFile(new File("file.txt"));
+        jFileChooser.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.getName().endsWith("txt");
+            }
+            @Override
+            public String getDescription() {
+                return "Текстовые файлы (*.txt)";
+            }
+        });
+        return jFileChooser;
+    }
+
     class fileReader implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            try{
-                graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
-                addVertexButton.setEnabled(true);
-                addEdgeButton.setEnabled(true);
-                checker = false;
-                String filename = JOptionPane.showInputDialog(
-                        GUI.this,
-                        "<html><h2>Введите название файла");
-                URL path = GUI.class.getResource(filename + ".txt");
-                if(path == null)
-                    return;
-                File f = new File(path.getFile());
-                BufferedReader br = new BufferedReader(new FileReader(f));
-                String strLine;
-                while ((strLine = br.readLine()) != null) {
-                    String[] parts = strLine.split(" ", 3);
-                    if(parts.length < 3) {
-                        JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
-                                "\"\nЗадавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
-                        graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
-                        return;
+            JFileChooser jFileChooser = createFileChooser();
+            int i = jFileChooser.showOpenDialog(getContentPane());
+            File pathToFile = jFileChooser.getCurrentDirectory();
+            File file = jFileChooser.getSelectedFile();
+            JOptionPane jOptionPane = new JOptionPane();
+            if(i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")){
+                try{
+                    graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
+                    addVertexButton.setEnabled(true);
+                    addEdgeButton.setEnabled(true);
+                    checker = false;
+                    File f = new File(pathToFile.toString(), file.getName());
+                    BufferedReader br = new BufferedReader(new FileReader(f));
+                    String strLine;
+                    while ((strLine = br.readLine()) != null) {
+                        String[] parts = strLine.split(" ", 3);
+                        if(parts.length < 3) {
+                            JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
+                                    "\"\nЗадавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                            graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
+                            return;
+                        }
+                        Object From = null;
+                        Object To = null;
+                        for(Object v : graph.getChildVertices(graph.getDefaultParent())) {
+                            if (parts[0].equals(((mxCell) v).getValue().toString()))
+                                From = v;
+                            if (parts[1].equals(((mxCell) v).getValue().toString()))
+                                To = v;
+                        }
+                        if(From == null) {
+                            From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
+                            ((mxCell) From).setId(parts[0]);
+                            layout.execute(graph.getDefaultParent());
+                        }
+                        if(To == null) {
+                            To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
+                            ((mxCell) To).setId(parts[1]);
+                            layout.execute(graph.getDefaultParent());
+                        }
+                        if(!DoubleParser((mxCell) From, (mxCell) To, parts[2], strLine))
+                            return;
                     }
-                    Object From = null;
-                    Object To = null;
-                    for(Object v : graph.getChildVertices(graph.getDefaultParent())) {
-                        if (parts[0].equals(((mxCell) v).getValue().toString()))
-                            From = v;
-                        if (parts[1].equals(((mxCell) v).getValue().toString()))
-                            To = v;
-                    }
-                    if(From == null) {
-                        From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
-                        ((mxCell) From).setId(parts[0]);
-                        layout.execute(graph.getDefaultParent());
-                    }
-                    if(To == null) {
-                        To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
-                        ((mxCell) To).setId(parts[1]);
-                        layout.execute(graph.getDefaultParent());
-                    }
-                    if(!DoubleParser((mxCell) From, (mxCell) To, parts[2], strLine))
-                        return;
+                    nextButton.setEnabled(true);
+                    executeButton.setEnabled(true);
+                    fileButton.setEnabled(true);
+                } catch (IOException error){
+                    JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
                 }
-                nextButton.setEnabled(true);
-                executeButton.setEnabled(true);
-                fileButton.setEnabled(true);
-            } catch (IOException error){
-                JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
             }
+            else if(i == jFileChooser.CANCEL_OPTION){}
+            else{
+                jOptionPane.showMessageDialog(GUI.this, "<html><h2>Ошибка открытия файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+
         }
     }
 
@@ -434,22 +458,12 @@ public class GUI extends JApplet {
         return false;
     }
 
+
+
     class saveResultFile implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent e) {
-            JFileChooser jFileChooser = new JFileChooser();
-            jFileChooser.setCurrentDirectory(new File("."));
-            jFileChooser.setSelectedFile(new File("result.txt"));
-            jFileChooser.setFileFilter(new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    return f.getName().endsWith("txt");
-                }
-                @Override
-                public String getDescription() {
-                    return "Текстовые файлы (*.txt)";
-                }
-            });
+            JFileChooser jFileChooser = createFileChooser();
             int i = jFileChooser.showSaveDialog(getContentPane());
             File file = jFileChooser.getSelectedFile();
             JOptionPane jOptionPane = new JOptionPane();
