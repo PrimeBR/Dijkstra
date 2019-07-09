@@ -178,24 +178,7 @@ public class GUI extends JApplet {
     class fileReader implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             JFileChooser jFileChooser = createFileChooser("file.txt");
-            int i = jFileChooser.showOpenDialog(getContentPane());
-            File pathToFile = jFileChooser.getCurrentDirectory();
-            File file = jFileChooser.getSelectedFile();
-            JOptionPane jOptionPane = new JOptionPane();
-            if (i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")) {
-                try {
-                    addVertexButton.setEnabled(true);
-                    addEdgeButton.setEnabled(true);
-                    File f = new File(pathToFile.toString(), file.getName());
-                    BufferedReader br = new BufferedReader(new FileReader(f));
-                    graph.fileReader(br);
-                } catch (IOException error) {
-                    JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
-                }
-            } else if (i == jFileChooser.CANCEL_OPTION) {
-            } else {
-                jOptionPane.showMessageDialog(null, "<html><h2>Ошибка открытия файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
-            }
+            graph.fileReader(jFileChooser, getContentPane());
         }
     }
 
