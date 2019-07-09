@@ -9,6 +9,8 @@ import java.util.*;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 public class Dijkstra {
+    public enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
+
     /**
      * step - метка, указывающая, какой шаг алгоритма должен выполнятся следующим
      * distance - карта вершин и расстояний до них
@@ -25,8 +27,6 @@ public class Dijkstra {
     private HashMap<Object, Object> parents;
     private mxGraph graph;
     private Object source;
-    public enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
-
 
     public Dijkstra(mxGraph graph, Object source) {
         distance = new HashMap<>();
@@ -92,8 +92,6 @@ public class Dijkstra {
         }
 
         textPane.setText(textPane.getText() + "выбрана вершина '" + ((mxCell) vertex).getId() + "'" + "\n");
-        System.out.println("выбрана вершина '" + ((mxCell) vertex).getId() + "'");
-
         return vertex;
     }
 
@@ -104,7 +102,6 @@ public class Dijkstra {
         if (outgoingEdges.get(vertex).isEmpty()) {
             step = Steps.UNVISITED_VERTEX_SELECTION;
             textPane.setText(textPane.getText() + "  все исходящие ребра просмотрены" + "\n");
-            System.out.println("  все исходящие ребра просмотрены");
             return vertex;
         }
         else if (unvisitedVertices.contains(((mxCell) outgoingEdges.get(vertex).first()).getTarget())) {
@@ -112,7 +109,6 @@ public class Dijkstra {
             Object result = outgoingEdges.get(vertex).first();
             outgoingEdges.get(vertex).remove(result);
             textPane.setText(textPane.getText() + "  выбрано ребро до вершины '" + ((mxCell) result).getTarget().getId() + "'" + "\n");
-                    System.out.println("  выбрано ребро до вершины '" + ((mxCell) result).getTarget().getId() + "'");
             return result;
         }
         else {
@@ -136,13 +132,11 @@ public class Dijkstra {
         if (newDistance < distance.get(target)) {
             textPane.setText(textPane.getText() + "    релаксация прошла успешно:" + "\n" + "      " + distance.get(source) +
             " + " + value + " < " + distance.get(target) + "\n");
-            System.out.println("    релаксация прошла успешно:" + "\n" + "      " + distance.get(source) + " + " + value + " < " + distance.get(target));
             parents.put(target, source);
         }
         else {
             textPane.setText(textPane.getText() + "    релаксация прошла неуспешно:" + "\n" + "      " + distance.get(source)
             + " + " + value + " ≥ " + distance.get(target) + "\n");
-            System.out.println("    релаксация прошла неуспешно:" + "\n" + "      " + distance.get(source) + " + " + value + " ≥ " + distance.get(target));
         }
         distance.put(target, newDistance);
         step = Steps.NEAREST_NEIGHBOR_SELECTION;
@@ -186,15 +180,15 @@ public class Dijkstra {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry e: distance.entrySet()) {
             if (!((mxCell) e.getKey()).equals(source)) {
-                builder.append("vertex = ");
+                builder.append("вершина = ");
                 builder.append(((mxCell) e.getKey()).getId());
-                builder.append(", distance = ");
+                builder.append(", расстояние = ");
                 builder.append(e.getValue().toString());
                 builder.append("\n");
             }
         }
 
-        builder.append("\n" + "Paths:" + "\n");
+        builder.append("\n" + "пути:" + "\n");
 
         for (Object v: parents.keySet())
             builder.append(pathRestoration(v));

@@ -50,7 +50,7 @@ public class GUI extends JApplet {
     private JButton fileButton = new JButton("\uD83D\uDCC1");
     private JButton saveButton = new JButton("\uD83D\uDCBE");
     private JButton showResultAlgoButton = new JButton("\uD83C\uDFC1");
-    private JCheckBox logChecker = new JCheckBox("logs");
+    private JCheckBox logChecker = new JCheckBox("логи");
     private JTextPane logsPane = new JTextPane();
     private JScrollPane scrollPane = new JScrollPane(logsPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -120,7 +120,7 @@ public class GUI extends JApplet {
         saveButton.setBorder(new RoundedBorder(10));
         saveButton.setEnabled(false);
 
-        logChecker.setBounds(749, 3, 49, 25);
+        logChecker.setBounds(740, 3, 55, 25);
         getContentPane().add(logChecker);
         logChecker.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -138,6 +138,7 @@ public class GUI extends JApplet {
 
         scrollPane.setBounds(555, 30, 220, 400);
         getContentPane().add(scrollPane);
+
         scrollPane.setVisible(false);
 
     }
@@ -214,7 +215,7 @@ public class GUI extends JApplet {
                         String[] parts = strLine.split(" ", 3);
                         if(parts.length < 3) {
                             JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
-                                    "\"\nЗадавайте ребра в виде: \"VERTEX1\" \"VERTEX2\" \"WEIGHT\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
+                                    "\"\nЗадавайте ребра в виде: \"начальная вершина\" \"конечная вершина\" \"вес\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
                             graph.removeCells (graph.getChildCells (graph.getDefaultParent (), true, true));
                             return;
                         }
@@ -242,6 +243,8 @@ public class GUI extends JApplet {
                     nextButton.setEnabled(true);
                     executeButton.setEnabled(true);
                     fileButton.setEnabled(true);
+
+                    logsPane.setText("");
                 } catch (IOException error){
                     JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
                 }
@@ -422,7 +425,7 @@ public class GUI extends JApplet {
         public void actionPerformed(ActionEvent e) {
             JOptionPane jOptionPane = new JOptionPane();
             jOptionPane.showMessageDialog(GUI.this,
-                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + ((mxCell) start).getId() + " - initial vertex\n" + test.toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
+                    "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + ((mxCell) start).getId() + " - стартовая вершина\n" + test.toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -470,7 +473,7 @@ public class GUI extends JApplet {
             if(i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")){
                 try {
                     FileWriter fw = new FileWriter(file);
-                    fw.write("Результат работы агоритма Дейкстры:\n" + '\n' + ((mxCell) start).getId() + " - initial vertex\n"+ '\n' + test.toString());
+                    fw.write("Результат работы агоритма Дейкстры:\n" + '\n' + ((mxCell) start).getId() + " - стартовая вершина\n"+ '\n' + test.toString());
                     jOptionPane.showMessageDialog(GUI.this, "<html><h2>Файл сохранен успешно!</h2><p>", "Сохранение файла", JOptionPane.INFORMATION_MESSAGE);
                     fw.flush();
                 } catch (Exception ex) {
