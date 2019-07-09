@@ -10,6 +10,18 @@ import java.io.*;
 import java.util.ArrayList;
 
 class GAdapter {
+    /**
+     * dijkstra - объект класса Dijkstra
+     * layout - круговой макет
+     * graph - граф, с которым необходимо работать
+     * parent - рродитель для всех остальных ячеек
+     * graphComponent - компонента для вывода графа в окно
+     * currV - текущая вершина
+     * currE - текущее ребро
+     * cell - текущая ячейка
+     * checker - флаг для проверки наличия в графе начальной вершины
+     * start - наальная вершина в графе
+     */
     private Dijkstra dijkstra;
     private mxCircleLayout layout;
     private mxGraph graph;
@@ -23,10 +35,19 @@ class GAdapter {
     private boolean checker = false;
     private Object start;
 
+    /**
+     * Геттер для получения объект класса Dijkstra
+     */
     Dijkstra getDijkstra() { return dijkstra; }
 
+    /**
+     * Геттер для получения объекта начальной вершины
+     */
     Object getStart() { return start; }
 
+    /**
+     * Метод инициализации кругового макета
+     */
     void initCircleLayout() {
         layout = new mxCircleLayout(graph);
         int radius = 150;
@@ -46,10 +67,16 @@ class GAdapter {
         graphComponent = new mxGraphComponent(graph);
     }
 
+    /**
+     * Геттер для получения компоненты графа
+     */
     mxGraphComponent getGraphComponent() {
         return graphComponent;
     }
 
+    /**
+     * Метод для считывания из файла
+     */
     void fileReader(JFileChooser jFileChooser, Container contentPane) {
         int i = jFileChooser.showOpenDialog(contentPane);
         File pathToFile = jFileChooser.getCurrentDirectory();
@@ -108,6 +135,9 @@ class GAdapter {
         }
     }
 
+    /**
+     * Метод для добавления вершины в граф
+     */
     void addVertexButtonEventListener(String input) {
         if (input != null) {
             if (input.equals(""))
@@ -126,6 +156,9 @@ class GAdapter {
         }
     }
 
+    /**
+     * Метод для проверки введённого для реьра веса и добавления его в граф
+     */
     boolean DoubleParser(mxCell From, mxCell To, String weight, String strLine) {
         try {
             if(Double.parseDouble(weight) < 0) {
@@ -144,6 +177,9 @@ class GAdapter {
         }
     }
 
+    /**
+     * Метод перехода к следующей итерации
+     */
     boolean nextIteration() {
         if(!checker) {
             if(!checkStartVertex())
@@ -188,11 +224,10 @@ class GAdapter {
         }
     }
 
+    /**
+     * Метод для проверки наличия в графе начальной вершины
+     */
     private boolean checkStartVertex() {
-        /*
-        tmp - массив объектов со всеми вершинами графа
-        vertices - массив строк с названиями всех вершин
-         */
         Object[] tmp = graph.getChildVertices(graph.getDefaultParent());
         ArrayList<String> vertices = new ArrayList<>();
         for(Object v: tmp)
@@ -216,6 +251,9 @@ class GAdapter {
         return false;
     }
 
+    /**
+     * Метод для поиска вершины в графе
+     */
     mxCell cellFounder(String result) {
         for(Object v: graph.getChildVertices(graph.getDefaultParent())) {
             if (result.equals(((mxCell) v).getValue())) {
@@ -225,6 +263,9 @@ class GAdapter {
         return null;
     }
 
+    /**
+     * Метод для выбора объекта на следующей итерации
+     */
     private Object nextStep(Object cell) {
         Object result = new mxCell();
         switch (dijkstra.getStep()) {
@@ -245,6 +286,9 @@ class GAdapter {
         return result;
     }
 
+    /**
+     * Метод для проверки на наличие между двумя вершинами ребра
+     */
     private boolean isEnable(Object v1, Object v2) {
         for(Object v: graph.getEdgesBetween(v1, v2))
             if(((mxCell) v).getTarget().equals(v1)) {

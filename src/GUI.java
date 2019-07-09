@@ -18,6 +18,10 @@ public class GUI extends JApplet {
      *     nextButton - кнопка перехода к следующей итерации
      *     executeButton - кнопка перехода к результату алгоритма
      *     helpButton - справочная кнопка
+     *     saveButton -кнопка для сохранения файла
+     *     fileButton - кнопка для считывания из файла
+     *     showResultAlgoButton - кнопка для показа результата программы
+     *     TITLE_message - титульник справочного окна
      */
     private static JButton addVertexButton = new JButton("V");
     private static JButton addEdgeButton = new JButton("E");
@@ -189,26 +193,48 @@ public class GUI extends JApplet {
         setPreferredSize(DEFAULT_SIZE);
     }
 
+    /**
+     *Геттер возвращающий объект кнопки для вставки вершины
+     */
     static JButton getAddVertexButton() { return addVertexButton; }
-
+    /**
+     *Геттер возвращающий объект кнопки для вставки ребра
+     */
     static JButton getAddEdgeButton() { return addEdgeButton; }
-
+    /**
+     *Геттер возвращающий объект кнопки для перехода к следующей итерации
+     */
     static JButton getNextButton() { return nextButton; }
-
+    /**
+     *Геттер возвращающий объект кнопки для перехода к конечному результату алгоритма
+     */
     static JButton getExecuteButton() { return executeButton; }
-
+    /**
+     *Геттер возвращающий объект кнопки для ввода графа из файла
+     */
     static JButton getFileButton() { return fileButton; }
-
+    /**
+     *Геттер возвращающий объект кнопки для сохранения результатов в файл
+     */
     static JButton getSaveButton() { return saveButton; }
-
+    /**
+     *Геттер возвращающий объект кнопки для показа результатов программы
+     */
     static JButton getShowResultAlgoButton() { return showResultAlgoButton; }
-
+    /**
+     *Геттер возвращающий объект для отображения логов прогрммы.
+     */
     static JTextPane getLogsPane() { return logsPane; }
-
+    /**
+     *Геттер возвращающий объект разрешения окна.
+     */
     static Dimension getDimension() {
         return DEFAULT_SIZE;
     }
 
+    /**
+     *Метод выбора файла для считывания
+     */
     private JFileChooser createFileChooser(String exampleFileName){
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setCurrentDirectory(new File("."));
