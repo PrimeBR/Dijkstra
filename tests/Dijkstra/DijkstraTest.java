@@ -26,7 +26,6 @@ public class DijkstraTest {
 
     }
 
-/*
     @Test
     public void getStep() {
     }
@@ -59,5 +58,4 @@ public class DijkstraTest {
     public void toString1() {
     }
 
-   */
 }

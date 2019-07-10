@@ -3,11 +3,9 @@ package Dijkstra;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.view.mxGraph;
 
-import javax.swing.*;
 import java.util.*;
 
 import static java.lang.Double.POSITIVE_INFINITY;
-import static java.lang.Double.min;
 
 public class Dijkstra {
     public enum Steps{UNVISITED_VERTEX_SELECTION, NEAREST_NEIGHBOR_SELECTION, RELAXATION};
@@ -26,7 +24,6 @@ public class Dijkstra {
     private ArrayList<Object> unvisitedVertices;
     private HashMap<Object, TreeSet<Object>> outgoingEdges;
     private HashMap<Object, Object> parents;
-    private mxGraph graph;
     private Object source;
 
     public Dijkstra(mxGraph graph, Object source) {
@@ -34,7 +31,6 @@ public class Dijkstra {
         unvisitedVertices = new ArrayList<>();
         outgoingEdges = new HashMap<>();
         parents = new HashMap<>();
-        this.graph = graph;
         this.source = source;
 
         /**
@@ -68,6 +64,10 @@ public class Dijkstra {
         return step;
     }
 
+    public double getDistance(Object vertex) {
+        return distance.get(vertex);
+    }
+
     /**
      * алгоритм заканчивается, когда все вершины просмотрены,
      * либо когда расстояния до всех оставшихся непросмотренных вершин равно бесконености
@@ -81,14 +81,13 @@ public class Dijkstra {
      * она удаляется из списка непросмотренных
      */
     public void removeVertex(Object vertex, Object edge) {
-        if (edge.equals(vertex))
-            unvisitedVertices.remove(vertex);
+        unvisitedVertices.remove(vertex);
     }
 
     /**
      * выбор следующей просматриваемой вершины из еще непросмотренных
      */
-    public Object selectUnvisitedVertex(JTextPane textPane) {
+    public Object selectUnvisitedVertex() {
         step = Steps.NEAREST_NEIGHBOR_SELECTION;
 
         /**
@@ -97,31 +96,27 @@ public class Dijkstra {
         Object vertex = new mxCell();
         double mindistance = minDistance();
 
-        for (Object v: distance.keySet()) {
+        for (Object v: distance.keySet())
             if (unvisitedVertices.contains(v) && distance.get(v).equals(mindistance)) {
                 vertex = v;
                 break;
             }
-        }
 
-        textPane.setText(textPane.getText() + "выбрана вершина '" + ((mxCell) vertex).getId() + "'" + "\n");
         return vertex;
     }
 
     /**
      * выбор непросмотренной вершины, ближайшей к текущей просматриваемой
      */
-    public Object selectNearestNeighbor(Object vertex, JTextPane textPane) {
+    public Object selectNearestNeighbor(Object vertex) {
         if (outgoingEdges.get(vertex).isEmpty()) {
             step = Steps.UNVISITED_VERTEX_SELECTION;
-            textPane.setText(textPane.getText() + "  все исходящие ребра просмотрены" + "\n");
             return vertex;
         }
         else if (unvisitedVertices.contains(((mxCell) outgoingEdges.get(vertex).first()).getTarget())) {
             step = Steps.RELAXATION;
             Object result = outgoingEdges.get(vertex).first();
             outgoingEdges.get(vertex).remove(result);
-            textPane.setText(textPane.getText() + "  выбрано ребро до вершины '" + ((mxCell) result).getTarget().getId() + "'" + "\n");
             return result;
         }
         else {
@@ -135,23 +130,16 @@ public class Dijkstra {
     /**
      * обновление расстояния до вершины
      */
-    public double relax(Object edge, JTextPane textPane) {
+    public double relax(Object edge) {
         Object source = ((mxCell) edge).getSource();
         Object target = ((mxCell) edge).getTarget();
         double value = (double)((mxCell) edge).getValue();
 
-        double newDistance = Math.min(distance.get(target), distance.get(source) + value);
+        double newDistance = distance.get(source) + value;
 
-        if (newDistance < distance.get(target)) {
-            textPane.setText(textPane.getText() + "    релаксация прошла успешно:" + "\n" + "      " + distance.get(source) +
-            " + " + value + " < " + distance.get(target) + "\n");
-            parents.put(target, source);
-        }
-        else {
-            textPane.setText(textPane.getText() + "    релаксация прошла неуспешно:" + "\n" + "      " + distance.get(source)
-            + " + " + value + " ≥ " + distance.get(target) + "\n");
-        }
+        parents.put(target, source);
         distance.put(target, newDistance);
+
         step = Steps.NEAREST_NEIGHBOR_SELECTION;
 
         return newDistance;

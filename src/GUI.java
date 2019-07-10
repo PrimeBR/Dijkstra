@@ -224,7 +224,12 @@ public class GUI extends JApplet {
     /**
      *Геттер возвращающий объект для отображения логов прогрммы.
      */
-    static JTextPane getLogsPane() { return logsPane; }
+    static void addLog(String string) {
+        logsPane.setText(logsPane.getText() + string);
+    }
+    static void clearLog() {
+        logsPane.setText("");
+    }
     /**
      *Геттер возвращающий объект разрешения окна.
      */

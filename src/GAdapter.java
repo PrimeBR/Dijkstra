@@ -125,7 +125,7 @@ class GAdapter {
                 GUI.getExecuteButton().setEnabled(true);
                 GUI.getFileButton().setEnabled(true);
 
-                GUI.getLogsPane().setText("");
+                GUI.clearLog();
             } catch (IOException error) {
                 JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
             }
@@ -270,16 +270,30 @@ class GAdapter {
         Object result = new mxCell();
         switch (dijkstra.getStep()) {
             case UNVISITED_VERTEX_SELECTION:
-                currV = dijkstra.selectUnvisitedVertex(GUI.getLogsPane());
+                currV = dijkstra.selectUnvisitedVertex();
+                GUI.addLog("выбрана вершина '" + ((mxCell) currV).getId() + "'" + "\n");
                 result = currV;
                 break;
             case NEAREST_NEIGHBOR_SELECTION:
-                currE = dijkstra.selectNearestNeighbor(cell, GUI.getLogsPane());
-                dijkstra.removeVertex(cell, currE);
+                currE = dijkstra.selectNearestNeighbor(cell);
+                if (currE.equals(cell) && dijkstra.getStep() == Dijkstra.Steps.UNVISITED_VERTEX_SELECTION) {
+                    dijkstra.removeVertex(cell, currE);
+                    GUI.addLog("  все исходящие ребра просмотрены" + "\n");
+                }
+                else if (!currE.equals(cell))
+                    GUI.addLog("  выбрано ребро до вершины '" + ((mxCell) currE).getTarget().getId() + "'" + "\n");
                 result = currE;
                 break;
             case RELAXATION:
-                result = dijkstra.relax(cell, GUI.getLogsPane());
+                if (dijkstra.getDistance(((mxCell) cell).getTarget()) > dijkstra.getDistance(((mxCell) cell).getSource()) + (double)((mxCell) cell).getValue()) {
+                    GUI.addLog("    релаксация прошла успешно:" + "\n" + "      " + dijkstra.getDistance(((mxCell) cell).getSource()) +
+                    " + " + (double)((mxCell) cell).getValue() + " < " + dijkstra.getDistance(((mxCell) currE).getTarget()) + "\n");
+                    result = dijkstra.relax(cell);
+                }
+                else {
+                    GUI.addLog("    релаксация прошла неудачно:" + "\n" + "      " + dijkstra.getDistance(((mxCell) cell).getSource()) +
+                    " + " + (double)((mxCell) cell).getValue() + " ≥ " + dijkstra.getDistance(((mxCell) currE).getTarget()) + "\n");
+                }
                 break;
         }
 
