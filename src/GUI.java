@@ -3,6 +3,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
 import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 
@@ -12,25 +13,8 @@ import javax.swing.filechooser.FileFilter;
 public class GUI extends JApplet {
     private static final Dimension DEFAULT_SIZE = new Dimension(800, 500);
     private GAdapter graph = new GAdapter();
-    /**
-     *     addVertexButton - кнопка для добавления вершины в граф
-     *     addEdgeButton - кнопка для добавления ребра в граф
-     *     nextButton - кнопка перехода к следующей итерации
-     *     executeButton - кнопка перехода к результату алгоритма
-     *     helpButton - справочная кнопка
-     *     saveButton -кнопка для сохранения файла
-     *     fileButton - кнопка для считывания из файла
-     *     showResultAlgoButton - кнопка для показа результата программы
-     *     TITLE_message - титульник справочного окна
-     */
-    private static JButton addVertexButton = new JButton("V");
-    private static JButton addEdgeButton = new JButton("E");
-    private static JButton nextButton = new JButton("▶");
-    private static JButton executeButton = new JButton("▶▶");
-    private static JButton helpButton = new JButton(" ? ");
-    private static JButton fileButton = new JButton("\uD83D\uDCC1");
-    private static JButton saveButton = new JButton("\uD83D\uDCBE");
-    private static JButton showResultAlgoButton = new JButton("\uD83C\uDFC1");
+    private static ArrayList<JButton> buttons = new ArrayList<>();
+    private String[] button_name = {" ? ", "\uD83D\uDCC1", "V", "E", "▶", "▶▶", "\uD83C\uDFC1", "\uD83D\uDCBE",};
     private static JCheckBox logChecker = new JCheckBox("логи");
     private static JTextPane logsPane = new JTextPane();
     private JScrollPane scrollPane = new JScrollPane(logsPane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -41,18 +25,31 @@ public class GUI extends JApplet {
      * Задание формы кнопок и их инициализация
      */
     private void initButtons() {
-        addVertexButton.setBounds(10, 135, 50, 50);
-        addVertexButton.addActionListener(e -> {
+        ButtonsHandler();
+
+        buttons.get(0).addActionListener(e -> JOptionPane.showMessageDialog(GUI.this,
+                "<html><h2>Справка:</h2><p>Данный графический интерфейс визуализирует алгоритм<br> поиска кратчайшего пути в графе - алгоритм Дейкстры.<br>" +
+                        "<i><br>Описание кнопок:</i> <br>" +
+                        "1) V - кнопка добавления вершины в граф;<br>2) E - кнопка добавления ребра в граф;<br>" +
+                        "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.<br>" +
+                        "4) \uD83D\uDCC1 - кнопка для считывания из файла.<br>" +
+                        "5) \uD83C\uDFC1 - кнопка показа конечного результата алгоритма<br></p>" +
+                        "6) \uD83D\uDCBE - кнопка вывода результата алгоритма в файл<br></p>" +
+                        "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
+
+        buttons.get(1).addActionListener(e -> {
+            JFileChooser jFileChooser = createFileChooser("file.txt");
+            graph.fileReader(jFileChooser, getContentPane());
+        });
+
+        buttons.get(2).addActionListener(e -> {
             String input = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите вершину:");
             graph.addVertexButtonEventListener(input);
         });
-        getContentPane().add(addVertexButton);
-        addVertexButton.setBorder(new RoundedBorder(10));
 
-        addEdgeButton.setBounds(10, 190, 50, 50);
-        addEdgeButton.addActionListener(e -> {
+        buttons.get(3).addActionListener(e -> {
             String from = JOptionPane.showInputDialog(
                     GUI.this,
                     "<html><h2>Введите первую вершину:");
@@ -84,62 +81,28 @@ public class GUI extends JApplet {
                 return;
             graph.DoubleParser(vFrom, vTo, weight, weight);
         });
-        getContentPane().add(addEdgeButton);
-        addEdgeButton.setBorder(new RoundedBorder(10));
 
-        nextButton.setBounds(10, 245, 50, 50);
-        nextButton.addActionListener(e -> {
+        buttons.get(4).addActionListener(e -> {
             graph.nextIteration();
         });
-        getContentPane().add(nextButton);
-        nextButton.setBorder(new RoundedBorder(10));
-        nextButton.setEnabled(false);
+        buttons.get(4).setEnabled(false);
 
-        executeButton.setBounds(10, 300, 50, 50);
-        executeButton.addActionListener(e -> {
+        buttons.get(5).addActionListener(e -> {
             while(graph.nextIteration());
-            executeButton.setEnabled(false);
-            saveButton.setEnabled(true);
+            buttons.get(5).setEnabled(false);
+            buttons.get(7).setEnabled(true);
         });
-        getContentPane().add(executeButton);
-        executeButton.setBorder(new RoundedBorder(10));
-        executeButton.setEnabled(false);
+        buttons.get(5).setEnabled(false);
 
-        showResultAlgoButton.setBounds(10, 355, 50, 50);
-        showResultAlgoButton.addActionListener(e -> {
+        buttons.get(6).addActionListener(e -> {
             JOptionPane jOptionPane = new JOptionPane();
             jOptionPane.showMessageDialog(GUI.this,
                     "<html><h2>Результат работы агоритма Дейкстры:</h2><p>" + ((mxCell) graph.getStart()).getId() + " - стартовая вершина\n" + graph.getDijkstra().toString(), "Вывод", JOptionPane.INFORMATION_MESSAGE);
 
         });
-        getContentPane().add(showResultAlgoButton);
-        showResultAlgoButton.setBorder(new RoundedBorder(10));
-        showResultAlgoButton.setEnabled(false);
+        buttons.get(6).setEnabled(false);
 
-        helpButton.setBounds(10, 25, 50, 50);
-        helpButton.addActionListener(e -> JOptionPane.showMessageDialog(GUI.this,
-                "<html><h2>Справка:</h2><p>Данный графический интерфейс визуализирует алгоритм<br> поиска кратчайшего пути в графе - алгоритм Дейкстры.<br>" +
-                        "<i><br>Описание кнопок:</i> <br>" +
-                        "1) V - кнопка добавления вершины в граф;<br>2) E - кнопка добавления ребра в граф;<br>" +
-                        "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.<br>" +
-                        "4) \uD83D\uDCC1 - кнопка для считывания из файла.<br>" +
-                        "5) \uD83C\uDFC1 - кнопка показа конечного результата алгоритма<br></p>" +
-                        "6) \uD83D\uDCBE - кнопка вывода результата алгоритма в файл<br></p>" +
-                        "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
-
-        getContentPane().add(helpButton);
-        helpButton.setBorder(new RoundedBorder(10));
-
-        fileButton.setBounds(10, 80, 50, 50);
-        fileButton.addActionListener(e -> {
-            JFileChooser jFileChooser = createFileChooser("file.txt");
-            graph.fileReader(jFileChooser, getContentPane());
-        });
-        getContentPane().add(fileButton);
-        fileButton.setBorder(new RoundedBorder(10));
-
-        saveButton.setBounds(10, 410, 50, 50);
-        saveButton.addActionListener(e -> {
+        buttons.get(7).addActionListener(e -> {
             JFileChooser jFileChooser = createFileChooser("result.txt");
             int i = jFileChooser.showSaveDialog(getContentPane());
             File file = jFileChooser.getSelectedFile();
@@ -159,9 +122,7 @@ public class GUI extends JApplet {
                 jOptionPane.showMessageDialog(GUI.this, "<html><h2>Ошибка сохранения файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
             }
         });
-        getContentPane().add(saveButton);
-        saveButton.setBorder(new RoundedBorder(10));
-        saveButton.setEnabled(false);
+        buttons.get(7).setEnabled(false);
 
         logChecker.setBounds(740, 3, 55, 25);
         getContentPane().add(logChecker);
@@ -196,31 +157,31 @@ public class GUI extends JApplet {
     /**
      *Геттер возвращающий объект кнопки для вставки вершины
      */
-    static JButton getAddVertexButton() { return addVertexButton; }
+    static JButton getAddVertexButton() { return buttons.get(2); }
     /**
      *Геттер возвращающий объект кнопки для вставки ребра
      */
-    static JButton getAddEdgeButton() { return addEdgeButton; }
+    static JButton getAddEdgeButton() { return buttons.get(3); }
     /**
      *Геттер возвращающий объект кнопки для перехода к следующей итерации
      */
-    static JButton getNextButton() { return nextButton; }
+    static JButton getNextButton() { return buttons.get(4); }
     /**
      *Геттер возвращающий объект кнопки для перехода к конечному результату алгоритма
      */
-    static JButton getExecuteButton() { return executeButton; }
+    static JButton getExecuteButton() { return buttons.get(5); }
     /**
      *Геттер возвращающий объект кнопки для ввода графа из файла
      */
-    static JButton getFileButton() { return fileButton; }
+    static JButton getFileButton() { return buttons.get(1); }
     /**
      *Геттер возвращающий объект кнопки для сохранения результатов в файл
      */
-    static JButton getSaveButton() { return saveButton; }
+    static JButton getSaveButton() { return buttons.get(7); }
     /**
      *Геттер возвращающий объект кнопки для показа результатов программы
      */
-    static JButton getShowResultAlgoButton() { return showResultAlgoButton; }
+    static JButton getShowResultAlgoButton() { return buttons.get(6); }
     /**
      *Геттер возвращающий объект для отображения логов прогрммы.
      */
@@ -266,6 +227,21 @@ public class GUI extends JApplet {
         else if(flag == 2)
             JOptionPane.showMessageDialog(null, "Пропущен ввод конечной вершины", "Warning!", JOptionPane.PLAIN_MESSAGE);
 
+    }
+
+    /**
+     * Метод для обработки кнопок
+     */
+    private void ButtonsHandler() {
+        int y = 25;
+        for(int i = 0; i < 8; i++) {
+            buttons.add(new JButton());
+            buttons.get(i).setText(button_name[i]);
+            buttons.get(i).setBounds(10, y, 50, 50);
+            getContentPane().add(buttons.get(i));
+            buttons.get(i).setBorder(new RoundedBorder(10));
+            y += 55;
+        }
     }
 
     /**
