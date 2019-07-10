@@ -192,7 +192,7 @@ class GAdapter {
         Object result = nextStep(cell);
         if (result instanceof Double) {
             Object target = ((mxCell) cell).getTarget();
-            ((mxCell) target).setValue("\n\n"+ ((mxCell) target).getId() + "\n\n(" + result + ")");
+            ((mxCell) target).setValue("\n\n"+ ((mxCell) target).getId() + "\n\n(" + String.format("%.3f", result) + ")");
             graph.setCellStyle("defaultVertex;shape=ellipse", new Object[]{target});
             graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "FA8072", new Object[]{cell});
         }
@@ -280,8 +280,9 @@ class GAdapter {
                     dijkstra.removeVertex(cell, currE);
                     GUI.addLog("  все исходящие ребра просмотрены" + "\n");
                 }
-                else if (!currE.equals(cell))
+                else if (!currE.equals(cell)) {
                     GUI.addLog("  выбрано ребро до вершины '" + ((mxCell) currE).getTarget().getId() + "'" + "\n");
+                }
                 result = currE;
                 break;
             case RELAXATION:
@@ -293,6 +294,7 @@ class GAdapter {
                 else {
                     GUI.addLog("    релаксация прошла неудачно:" + "\n" + "      " + dijkstra.getDistance(((mxCell) cell).getSource()) +
                     " + " + (double)((mxCell) cell).getValue() + " ≥ " + dijkstra.getDistance(((mxCell) currE).getTarget()) + "\n");
+                    dijkstra.setStep(Dijkstra.Steps.NEAREST_NEIGHBOR_SELECTION);
                 }
                 break;
         }

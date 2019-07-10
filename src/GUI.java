@@ -124,7 +124,7 @@ public class GUI extends JApplet {
         });
         buttons.get(7).setEnabled(false);
 
-        logChecker.setBounds(740, 3, 55, 25);
+        logChecker.setBounds(736, 3, 55, 25);
         getContentPane().add(logChecker);
         logChecker.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -134,11 +134,12 @@ public class GUI extends JApplet {
                 scrollPane.setVisible(false);
             }
         });
-        logsPane.setBounds(555, 30, 220, 1000);
+        logsPane.setBounds(555, 30, 230, 1000);
+        logsPane.setEditable(false);
         logsPane.setBackground( new Color(238, 238, 238));
 
 
-        scrollPane.setBounds(555, 30, 220, 400);
+        scrollPane.setBounds(555, 30, 230, 455);
         getContentPane().add(scrollPane);
         scrollPane.setVisible(false);
     }

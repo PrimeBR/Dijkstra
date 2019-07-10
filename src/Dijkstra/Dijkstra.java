@@ -64,6 +64,10 @@ public class Dijkstra {
         return step;
     }
 
+    public void setStep(Steps step) {
+        this.step = step;
+    }
+
     public double getDistance(Object vertex) {
         return distance.get(vertex);
     }
@@ -141,7 +145,6 @@ public class Dijkstra {
         distance.put(target, newDistance);
 
         step = Steps.NEAREST_NEIGHBOR_SELECTION;
-
         return newDistance;
     }
 
