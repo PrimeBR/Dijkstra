@@ -6,7 +6,6 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
 import java.util.ArrayList;
 
 class GAdapter {
@@ -22,9 +21,9 @@ class GAdapter {
      * checker - флаг для проверки наличия в графе начальной вершины
      * start - наальная вершина в графе
      */
-    private Dijkstra dijkstra;
+    private static Dijkstra dijkstra;
     private mxCircleLayout layout;
-    private mxGraph graph;
+    private static mxGraph graph;
     private Object parent;
     private mxGraphComponent graphComponent;
 
@@ -33,7 +32,7 @@ class GAdapter {
     private Object cell = new mxCell();
 
     private boolean checker = false;
-    private Object start;
+    private static Object start;
 
     /**
      * Геттер для получения объект класса Dijkstra
@@ -75,64 +74,49 @@ class GAdapter {
     }
 
     /**
-     * Метод для считывания из файла
+     * Метод для обработки считанных данных из файла
      */
-    void fileReader(JFileChooser jFileChooser, Container contentPane) {
-        int i = jFileChooser.showOpenDialog(contentPane);
-        File pathToFile = jFileChooser.getCurrentDirectory();
-        File file = jFileChooser.getSelectedFile();
-        JOptionPane jOptionPane = new JOptionPane();
-        if (i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")) {
-            try {
-                graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
-                GUI.getShowResultAlgoButton().setEnabled(false);
-                GUI.getAddVertexButton().setEnabled(true);
-                GUI.getAddEdgeButton().setEnabled(true);
-                checker = false;
-                File f = new File(pathToFile.toString(), file.getName());
-                BufferedReader br = new BufferedReader(new FileReader(f));
-                String strLine;
-                while ((strLine = br.readLine()) != null) {
-                    String[] parts = strLine.split(" ", 3);
-                    if (parts.length < 3) {
-                        JOptionPane.showMessageDialog(null, "Некорректная строка: \"" + strLine +
-                                "\"\nЗадавайте ребра в виде: \"начальная вершина\" \"конечная вершина\" \"вес\"", "Warning!", JOptionPane.PLAIN_MESSAGE);
-                        graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
-                        return;
-                    }
-                    Object From = null;
-                    Object To = null;
-                    for (Object v : graph.getChildVertices(graph.getDefaultParent())) {
-                        if (parts[0].equals(((mxCell) v).getValue().toString()))
-                            From = v;
-                        if (parts[1].equals(((mxCell) v).getValue().toString()))
-                            To = v;
-                    }
-                    if (From == null) {
-                        From = graph.insertVertex(parent, null, parts[0], 100, 100, 45, 45, "shape=ellipse");
-                        ((mxCell) From).setId(parts[0]);
-                        layout.execute(graph.getDefaultParent());
-                    }
-                    if (To == null) {
-                        To = graph.insertVertex(parent, null, parts[1], 100, 100, 45, 45, "shape=ellipse");
-                        ((mxCell) To).setId(parts[1]);
-                        layout.execute(graph.getDefaultParent());
-                    }
-                    if (!DoubleParser((mxCell) From, (mxCell) To, parts[2], strLine))
-                        return;
-                }
+     void fileReaderHandler(Container contentPane) {
+         ArrayList parts = FileHandler.fileReader(contentPane);
+         if(parts != null && !parts.isEmpty()) {
+            graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
+            GUI.getShowResultAlgoButton().setEnabled(false);
+            GUI.getAddVertexButton().setEnabled(true);
+            GUI.getAddEdgeButton().setEnabled(true);
+            checker = false;
+             for (Object part : parts) {
+                 String[] oneSplit = (String[]) part;
+                 if(oneSplit.length < 3) {
+                     graph.removeCells(graph.getChildCells(graph.getDefaultParent(), true, true));
+                     return;
+                 }
+                 Object From = null;
+                 Object To = null;
+                 for (Object v : graph.getChildVertices(graph.getDefaultParent())) {
+                     if (oneSplit[0].equals(((mxCell) v).getValue().toString()))
+                         From = v;
+                     if (oneSplit[1].equals(((mxCell) v).getValue().toString()))
+                         To = v;
+                 }
+                 if (From == null) {
+                     From = graph.insertVertex(parent, null, oneSplit[0], 100, 100, 45, 45, "shape=ellipse");
+                     ((mxCell) From).setId(oneSplit[0]);
+                     layout.execute(graph.getDefaultParent());
+                 }
+                 if (To == null) {
+                     To = graph.insertVertex(parent, null, oneSplit[1], 100, 100, 45, 45, "shape=ellipse");
+                     ((mxCell) To).setId(oneSplit[1]);
+                     layout.execute(graph.getDefaultParent());
+                 }
+                 if (!DoubleParser((mxCell) From, (mxCell) To, oneSplit[2], oneSplit[0] + " " + oneSplit[1] + " " + oneSplit[2]))
+                     return;
+             }
                 GUI.getNextButton().setEnabled(true);
                 GUI.getExecuteButton().setEnabled(true);
                 GUI.getFileButton().setEnabled(true);
-
                 GUI.clearLog();
-            } catch (IOException error) {
-                JOptionPane.showMessageDialog(null, "Ошибка!", "Warning!", JOptionPane.PLAIN_MESSAGE);
-            }
-        } else if (i == jFileChooser.CANCEL_OPTION) {
-        } else {
-            jOptionPane.showMessageDialog(null, "<html><h2>Ошибка открытия файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
-        }
+
+         }
     }
 
     /**
@@ -313,6 +297,14 @@ class GAdapter {
                 return false;
             }
         return true;
+    }
+
+    static String getStartId() {
+        return ((mxCell) start).getId();
+    }
+
+    static String getDijkstraResult() {
+        return dijkstra.toString();
     }
 }
 

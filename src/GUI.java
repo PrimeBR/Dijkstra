@@ -2,10 +2,8 @@ import com.mxgraph.model.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.ArrayList;
 import javax.swing.border.Border;
-import javax.swing.filechooser.FileFilter;
 
 /**
  * Класс реализации графического интерфейса
@@ -38,8 +36,8 @@ public class GUI extends JApplet {
                         "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
 
         buttons.get(1).addActionListener(e -> {
-            JFileChooser jFileChooser = createFileChooser("file.txt");
-            graph.fileReader(jFileChooser, getContentPane());
+//            JFileChooser jFileChooser = createFileChooser("file.txt");
+            graph.fileReaderHandler(getContentPane());
         });
 
         buttons.get(2).addActionListener(e -> {
@@ -103,24 +101,7 @@ public class GUI extends JApplet {
         buttons.get(6).setEnabled(false);
 
         buttons.get(7).addActionListener(e -> {
-            JFileChooser jFileChooser = createFileChooser("result.txt");
-            int i = jFileChooser.showSaveDialog(getContentPane());
-            File file = jFileChooser.getSelectedFile();
-            JOptionPane jOptionPane = new JOptionPane();
-            if(i == jFileChooser.APPROVE_OPTION && file.getName().endsWith("txt")) {
-                try {
-                    FileWriter fw = new FileWriter(file);
-                    fw.write("Результат работы агоритма Дейкстры:\n" + '\n' + ((mxCell) graph.getStart()).getId() + " - стартовая вершина\n"+ '\n' + graph.getDijkstra().toString());
-                    jOptionPane.showMessageDialog(GUI.this, "<html><h2>Файл сохранен успешно!</h2><p>", "Сохранение файла", JOptionPane.INFORMATION_MESSAGE);
-                    fw.flush();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-            else if(i == jFileChooser.CANCEL_OPTION){}
-            else {
-                jOptionPane.showMessageDialog(GUI.this, "<html><h2>Ошибка сохранения файла!</h2><p>" + "<html><h2>Выберете файл с расширение *.txt!</h2><p>", "Ошибка сохранения файла", JOptionPane.INFORMATION_MESSAGE);
-            }
+            FileHandler.fileSaver(getContentPane());
         });
         buttons.get(7).setEnabled(false);
 
@@ -197,26 +178,6 @@ public class GUI extends JApplet {
      */
     static Dimension getDimension() {
         return DEFAULT_SIZE;
-    }
-
-    /**
-     *Метод выбора файла для считывания
-     */
-    private JFileChooser createFileChooser(String exampleFileName){
-        JFileChooser jFileChooser = new JFileChooser();
-        jFileChooser.setCurrentDirectory(new File("."));
-        jFileChooser.setSelectedFile(new File(exampleFileName));
-        jFileChooser.setFileFilter(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.getName().endsWith("txt");
-            }
-            @Override
-            public String getDescription() {
-                return "Текстовые файлы (*.txt)";
-            }
-        });
-        return jFileChooser;
     }
 
     /**
