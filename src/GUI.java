@@ -125,8 +125,6 @@ class GUI extends JFrame {
         graph.initGraph();
         graph.initCircleLayout();
         getContentPane().add(graph.getGraphComponent());
-//        frasetSize(800, 500);
-//        setPreferredSize(DEFAULT_SIZE);
     }
 
     /**
@@ -157,6 +155,7 @@ class GUI extends JFrame {
      *Геттер возвращающий объект кнопки для показа результатов программы
      */
     static JButton getShowResultAlgoButton() { return buttons.get(6); }
+
     /**
      *Геттер возвращающий объект для отображения логов прогрммы.
      */

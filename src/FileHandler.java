@@ -24,6 +24,7 @@ class FileHandler {
         });
         return jFileChooser;
     }
+
     /**
      * Метод для считывания из файла
      */
