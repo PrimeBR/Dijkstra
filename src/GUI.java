@@ -1,15 +1,13 @@
-import com.mxgraph.model.*;
-import javax.swing.*;
+import com.mxgraph.model.mxCell;
+import java.awt.Color;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.ArrayList;
+import javax.swing.*;
 import javax.swing.border.Border;
-
+import java.util.ArrayList;
 /**
  * Класс реализации графического интерфейса
  */
-public class GUI extends JApplet {
-    private static final Dimension DEFAULT_SIZE = new Dimension(800, 500);
+class GUI extends JFrame {
     private GAdapter graph = new GAdapter();
     private static ArrayList<JButton> buttons = new ArrayList<>();
     private String[] button_name = {" ? ", "\uD83D\uDCC1", "V", "E", "▶", "▶▶", "\uD83C\uDFC1", "\uD83D\uDCBE",};
@@ -36,7 +34,6 @@ public class GUI extends JApplet {
                         "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
 
         buttons.get(1).addActionListener(e -> {
-//            JFileChooser jFileChooser = createFileChooser("file.txt");
             graph.fileReaderHandler(getContentPane());
         });
 
@@ -80,9 +77,7 @@ public class GUI extends JApplet {
             graph.DoubleParser(vFrom, vTo, weight, weight);
         });
 
-        buttons.get(4).addActionListener(e -> {
-            graph.nextIteration();
-        });
+        buttons.get(4).addActionListener(e -> graph.nextIteration());
         buttons.get(4).setEnabled(false);
 
         buttons.get(5).addActionListener(e -> {
@@ -100,15 +95,13 @@ public class GUI extends JApplet {
         });
         buttons.get(6).setEnabled(false);
 
-        buttons.get(7).addActionListener(e -> {
-            FileHandler.fileSaver(getContentPane());
-        });
+        buttons.get(7).addActionListener(e -> FileHandler.fileSaver(getContentPane()));
         buttons.get(7).setEnabled(false);
 
         logChecker.setBounds(736, 3, 55, 25);
         getContentPane().add(logChecker);
         logChecker.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getStateChange() == 1) {
                 scrollPane.setVisible(true);
             }
             else {
@@ -117,8 +110,7 @@ public class GUI extends JApplet {
         });
         logsPane.setBounds(555, 30, 230, 1000);
         logsPane.setEditable(false);
-        logsPane.setBackground( new Color(238, 238, 238));
-
+        logsPane.setBackground(Color.getColor("238 238 238"));
 
         scrollPane.setBounds(555, 30, 230, 455);
         getContentPane().add(scrollPane);
@@ -128,12 +120,13 @@ public class GUI extends JApplet {
     /**
      * Метод для вызова инициализации графа, кнопок и кругового макета
      */
-    public void init() {
+    void init() {
         initButtons();
         graph.initGraph();
         graph.initCircleLayout();
         getContentPane().add(graph.getGraphComponent());
-        setPreferredSize(DEFAULT_SIZE);
+//        frasetSize(800, 500);
+//        setPreferredSize(DEFAULT_SIZE);
     }
 
     /**
@@ -173,12 +166,6 @@ public class GUI extends JApplet {
     static void clearLog() {
         logsPane.setText("");
     }
-    /**
-     *Геттер возвращающий объект разрешения окна.
-     */
-    static Dimension getDimension() {
-        return DEFAULT_SIZE;
-    }
 
     /**
      *Метод для вывода сообщения в случае наудачного добавления ребра
@@ -195,7 +182,7 @@ public class GUI extends JApplet {
      * Метод для обработки кнопок
      */
     private void ButtonsHandler() {
-        int y = 25;
+        int y = 15;
         for(int i = 0; i < 8; i++) {
             buttons.add(new JButton());
             buttons.get(i).setText(button_name[i]);

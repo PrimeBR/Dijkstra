@@ -1,11 +1,11 @@
-import Dijkstra.*;
+import Dijkstra.Dijkstra;
 import com.mxgraph.layout.mxCircleLayout;
-import com.mxgraph.model.*;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import javax.swing.*;
-import java.awt.*;
+import java.awt.Container;
 import java.util.ArrayList;
 
 class GAdapter {
@@ -50,8 +50,8 @@ class GAdapter {
     void initCircleLayout() {
         layout = new mxCircleLayout(graph);
         int radius = 150;
-        layout.setX0((GUI.getDimension().width / 2.0) - 1.33 * radius);
-        layout.setY0((GUI.getDimension().height / 2.0) - 1.1 * radius);
+        layout.setX0((800 / 2.0) - 1.33 * radius);
+        layout.setY0((500 / 2.0) - 1.1 * radius);
         layout.setRadius(radius);
         layout.setMoveCircle(true);
         layout.execute(graph.getDefaultParent());
