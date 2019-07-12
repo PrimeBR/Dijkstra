@@ -26,16 +26,16 @@ class GUI extends JFrame {
         buttons.get(0).addActionListener(e -> JOptionPane.showMessageDialog(GUI.this,
                 "<html><h2>Справка:</h2><p>Данный графический интерфейс визуализирует алгоритм<br> поиска кратчайшего пути в графе - алгоритм Дейкстры.<br>" +
                         "<i><br>Описание кнопок:</i> <br>" +
-                        "1) V - кнопка добавления вершины в граф;<br>2) E - кнопка добавления ребра в граф;<br>" +
-                        "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>4) ▶▶ - кнопка вывода конечного результата алгоритма.<br>" +
-                        "4) \uD83D\uDCC1 - кнопка для считывания из файла.<br>" +
-                        "5) \uD83C\uDFC1 - кнопка показа конечного результата алгоритма<br></p>" +
-                        "6) \uD83D\uDCBE - кнопка вывода результата алгоритма в файл<br></p>" +
+                        "1) V - кнопка добавления вершины в граф;<br>" +
+                        "2) E - кнопка добавления ребра в граф;<br>" +
+                        "3) ▶ - кнопка для перехода к следующей итерации алгоритма;<br>" +
+                        "4) ▶▶ - кнопка вывода конечного результата алгоритма.<br>" +
+                        "5) \uD83D\uDCC1 - кнопка для считывания из файла.<br>" +
+                        "6) \uD83C\uDFC1 - кнопка показа конечного результата алгоритма<br></p>" +
+                        "7) \uD83D\uDCBE - кнопка вывода результата алгоритма в файл<br></p>" +
                         "<br>Значения в () - минимальное расстояние до вершин из начальной.", TITLE_message, JOptionPane.INFORMATION_MESSAGE));
 
-        buttons.get(1).addActionListener(e -> {
-            graph.fileReaderHandler(getContentPane());
-        });
+        buttons.get(1).addActionListener(e -> graph.fileReaderHandler(getContentPane()));
 
         buttons.get(2).addActionListener(e -> {
             String input = JOptionPane.showInputDialog(
