@@ -18,10 +18,10 @@ public class EdgeComparatorTest {
     private Object edge2;
     private int expected;
 
-    public EdgeComparatorTest(int expected, Object edge1, Object edge2) {
-        this.expected = expected;
+    public EdgeComparatorTest(Object edge1, Object edge2, int expected) {
         this.edge1 = edge1;
         this.edge2 = edge2;
+        this.expected = expected;
     }
     @BeforeClass
     public static void beforeClass() {
@@ -43,9 +43,9 @@ public class EdgeComparatorTest {
         graph.insertEdge(parent, null, 12.4, vertices[0], vertices[3]);
         Object [] edges = graph.getOutgoingEdges(v1, parent);
         return Arrays.asList(new Object[][] {
-                { 0, edges[0], edges[1]},
-                { -1, edges[0], edges[2]},
-                { 1, edges[2], edges[1]},
+                { edges[0], edges[1], 0},
+                { edges[0], edges[2], -1},
+                { edges[2], edges[1], 1},
         });
     }
 
